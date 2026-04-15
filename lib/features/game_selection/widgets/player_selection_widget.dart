@@ -42,8 +42,18 @@ class _Header extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Row(
-      children: [Icon(Icons.group), Text('Players') /*Icon(Icons.edit)*/],
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(10, 0, 8, 4),
+      child: const Row(
+        spacing: 8.0,
+        children: [
+          Icon(Icons.group),
+          Text(
+            'Players',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ) /*Icon(Icons.edit)*/,
+        ],
+      ),
     );
   }
 }

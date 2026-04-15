@@ -1,5 +1,7 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:scorely/features/game_selection/widgets/player_selection_widget.dart';
+import 'package:scorely/features/score_tracking/view/score_tracking_screen.dart';
 
 class GameSelectionScreen extends StatefulWidget {
   const GameSelectionScreen({super.key});
@@ -27,7 +29,13 @@ class _GameSelectionScreenState extends State<GameSelectionScreen> {
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {},
+        onPressed: () {
+          Navigator.of(context).push(
+            CupertinoPageRoute<void>(
+              builder: (context) => const ScoreTrackingScreen(),
+            ),
+          );
+        },
         tooltip: 'Spiel Starten',
         label: Text('Spiel Starten'),
       ),
