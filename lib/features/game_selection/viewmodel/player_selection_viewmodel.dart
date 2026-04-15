@@ -23,6 +23,10 @@ class PlayerSelectionViewmodel extends ChangeNotifier {
     return _selectedPlayers.contains(playerName);
   }
 
+  bool isReadyToStart() {
+    return _selectedPlayers.length >= 2;
+  }
+
   void toggleSelectPlayer(String playerName) {
     // Spielername Button wird geändert
     if (_selectedPlayers.contains(playerName)) {
