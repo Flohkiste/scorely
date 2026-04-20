@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:scorely/features/game_selection/viewmodel/player_selection_viewmodel.dart';
+import 'package:scorely/features/game_selection/viewmodel/player_management_viewmodel.dart';
 import 'package:provider/provider.dart';
 import 'package:scorely/features/game_selection/widgets/add_player_bottom_sheet.dart';
 
@@ -8,7 +8,7 @@ class PlayerSelectionWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final playerSelectionViewModel = Provider.of<PlayerSelectionViewmodel>(
+    final playerSelectionViewModel = Provider.of<PlayerManagementViewModel>(
       context,
     );
 

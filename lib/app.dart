@@ -3,7 +3,7 @@ import 'package:flutter_logcat/flutter_logcat.dart';
 import 'package:provider/provider.dart';
 import 'package:scorely/core/color.dart' as color;
 import 'package:scorely/features/game_selection/view/game_selection_screen.dart';
-import 'package:scorely/features/game_selection/viewmodel/player_selection_viewmodel.dart';
+import 'package:scorely/features/game_selection/viewmodel/player_management_viewmodel.dart';
 
 class App extends StatelessWidget {
   const App({super.key});
@@ -13,7 +13,7 @@ class App extends StatelessWidget {
     Log.configure(visible: true, time: true);
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => PlayerSelectionViewmodel()),
+        ChangeNotifierProvider(create: (_) => PlayerManagementViewModel()),
       ],
       child: Material(),
     );

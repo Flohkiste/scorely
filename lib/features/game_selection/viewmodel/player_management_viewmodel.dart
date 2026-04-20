@@ -1,17 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_logcat/flutter_logcat.dart';
 
-class PlayerSelectionViewmodel extends ChangeNotifier {
+enum AddPlayerResult { success, duplicate, empty }
+
+class PlayerManagementViewModel extends ChangeNotifier {
   final List<String> _players = ['Test1', 'Test2', 'Test3', 'Test4', 'Test5'];
   final List<String> _selectedPlayers = [];
 
   List<String> get players => _players;
   List<String> get selectedPlayers => _selectedPlayers;
 
-  void addPlayer(String playerName) {
-    // Popup zur Spieler Name eingabe + evtl. Farbe
+  AddPlayerResult addPlayer(String playerName) {
+    if (playerName.isEmpty) return AddPlayerResult.empty;
+
+    if (_players.contains(playerName)) return AddPlayerResult.duplicate;
+
     _players.add(playerName);
     notifyListeners();
+    return AddPlayerResult.success;
   }
 
   void deletePlayer(String playerName) {
