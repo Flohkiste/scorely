@@ -1,10 +1,7 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
 import 'package:scorely/features/game_selection/viewmodel/game_selection_viewmodel.dart';
 
-import 'package:scorely/features/score_tracking/view/score_tracking_screen.dart';
 import 'package:scorely/routing/routes.dart';
 
 class GameSelectionScreen extends StatefulWidget {

@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:scorely/core/dependencies.dart';
 import 'package:scorely/core/color.dart' as color;
 
 import 'package:scorely/routing/router.dart';
