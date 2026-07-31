@@ -1,12 +1,16 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import 'package:scorely/features/game_selection/viewmodel/player_management_viewmodel.dart';
-import 'package:scorely/features/game_selection/widgets/player_selection_widget.dart';
+import 'package:scorely/features/game_selection/viewmodel/game_selection_viewmodel.dart';
+
 import 'package:scorely/features/score_tracking/view/score_tracking_screen.dart';
+import 'package:scorely/routing/routes.dart';
 
 class GameSelectionScreen extends StatefulWidget {
-  const GameSelectionScreen({super.key});
+  const GameSelectionScreen({super.key, required this.viewModel});
+
+  final GameSelectionViewmodel viewModel;
 
   @override
   State<GameSelectionScreen> createState() => _GameSelectionScreenState();
@@ -26,21 +30,12 @@ class _GameSelectionScreenState extends State<GameSelectionScreen> {
       ),
       body: Column(
         children: <Widget>[
-          PlayerSelectionWidget(), //TODO: SelectPlayers() Widget / Screen
           Text('Game History'), //TODO: GameHistory() Widget / Screen
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          if (!context.read<PlayerManagementViewModel>().isReadyToStart()) {
-            return;
-          }
-
-          Navigator.of(context).push(
-            CupertinoPageRoute<void>(
-              builder: (context) => const ScoreTrackingScreen(),
-            ),
-          );
+          context.push(Routes.scoreTracking);
         },
         tooltip: 'Spiel Starten',
         label: Text('Spiel Starten'),
