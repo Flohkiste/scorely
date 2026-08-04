@@ -8,21 +8,28 @@ class PlayerSelectionViewmodel extends ChangeNotifier {
   final PlayerRepository _playerRepository;
 
   PlayerSelectionViewmodel({required PlayerRepository playerRepository})
-    : _playerRepository = playerRepository;
+    : _playerRepository = playerRepository {
+    _playerRepository.selectedPlayerIdsNotifier.addListener(notifyListeners);
+  }
+
+  @override
+  void dispose() {
+    _playerRepository.selectedPlayerIdsNotifier.removeListener(notifyListeners);
+    super.dispose();
+  }
 
   List<Player> _players = [];
-  final Set<int> _selectedPlayerIds = {};
   bool _isLoading = false;
   String? _errorMessage;
 
   // Getter
   List<Player> get players => _players;
-  List<Player> get selectedPlayers => _players
-      .where((p) => p.id != null && _selectedPlayerIds.contains(p.id))
-      .toList();
-  Set<int> get selectedPlayerIds => _selectedPlayerIds;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
+  Set<int> get selectedPlayerIds => _playerRepository.selectedPlayerIds;
+  List<Player> get selectedPlayers => _players
+      .where((p) => p.id != null && selectedPlayerIds.contains(p.id))
+      .toList();
 
   /// Lädt alle Spieler aus der Datenbank in `_allPlayers`.
   Future<void> loadPlayers() async {
@@ -84,22 +91,14 @@ class PlayerSelectionViewmodel extends ChangeNotifier {
   }
 
   /// Wählt einen Spieler aus oder hebt die Auswahl auf (Toggle).
-  void togglePlayerSelection(int playerId) {
-    if (_selectedPlayerIds.contains(playerId)) {
-      _selectedPlayerIds.remove(playerId);
-    } else {
-      _selectedPlayerIds.add(playerId);
-    }
-
-    notifyListeners();
-  }
+  void togglePlayerSelection(int playerId) =>
+      _playerRepository.togglePlayerSelection(playerId);
 
   void _setLoading(bool value) {
     _isLoading = value;
     notifyListeners();
   }
 
-  bool isSelected(int playerId) {
-    return _selectedPlayerIds.contains(playerId);
-  }
+  bool isSelected(int playerId) =>
+      _playerRepository.selectedPlayerIds.contains(playerId);
 }

@@ -31,7 +31,7 @@ class PlayerSelectionWidget extends StatelessWidget {
                           viewmodel.togglePlayerSelection(player.id!),
                       onLongPressed: () {
                         viewmodel.deletePlayer(player.id!);
-                      }, //viewmodel.deletePlayer(player),
+                      },
                     );
                   }),
                 ],

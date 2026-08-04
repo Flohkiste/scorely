@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:scorely/business/model/player.dart';
 import 'package:scorely/data/services/player_dao.dart';
 import 'package:scorely/utils/result.dart';
@@ -14,7 +16,30 @@ class PlayerRepository implements IPlayerRepository {
 
   PlayerRepository({required PlayerDao playerDao}) : _playerDao = playerDao;
 
-  // Methoden
+  // In Memory State
+  final ValueNotifier<Set<int>> _selectedPlayerIds = ValueNotifier<Set<int>>(
+    {},
+  );
+
+  ValueListenable<Set<int>> get selectedPlayerIdsNotifier => _selectedPlayerIds;
+
+  Set<int> get selectedPlayerIds => _selectedPlayerIds.value;
+
+  // Methoden - In-Memory
+
+  void togglePlayerSelection(int playerId) {
+    final currentSet = Set<int>.from(_selectedPlayerIds.value);
+
+    if (currentSet.contains(playerId)) {
+      currentSet.remove(playerId);
+    } else {
+      currentSet.add(playerId);
+    }
+
+    _selectedPlayerIds.value = currentSet;
+  }
+
+  // Methoden - Datenbank
   @override
   Future<Result<Player>> createPlayer(String name) async {
     try {

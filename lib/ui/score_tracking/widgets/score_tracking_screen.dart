@@ -23,7 +23,21 @@ class ScoreTrackingScreen extends StatelessWidget {
           },
         ),
       ),
-      body: Text("Spieler: "),
+      body: ListenableBuilder(
+        listenable: viewModel,
+        builder: (context, child) {
+          if (viewModel.isLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (viewModel.errorMessage != null) {
+            return Center(child: Text(viewModel.errorMessage!));
+          }
+          return Text(
+            "Spieler: ${viewModel.selectedPlayers.map((p) => p.name).join(', ')}",
+          );
+        },
+      ),
     );
   }
 }
