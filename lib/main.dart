@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:scorely/core/color.dart' as color;
-import 'package:scorely/core/dependencies.dart';
+import 'package:scorely/config/dependencies.dart';
 
 import 'package:scorely/routing/router.dart';
+import 'package:scorely/ui/core/themes/theme.dart';
 
 void main() {
   runApp(MultiProvider(providers: providers, child: const App()));
@@ -19,8 +19,9 @@ class App extends StatelessWidget {
 
     return MaterialApp.router(
       title: 'Scorely',
-      theme: color.appThemeData,
-
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: ThemeMode.system,
       routerConfig: goRouter,
     );
   }

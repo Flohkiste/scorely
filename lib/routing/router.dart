@@ -1,7 +1,7 @@
-import 'package:scorely/features/game_selection/widgets/game_selection_screen.dart';
-import 'package:scorely/features/game_selection/viewmodel/game_selection_viewmodel.dart';
-import 'package:scorely/features/score_tracking/widgets/score_tracking_screen.dart';
-import 'package:scorely/features/score_tracking/viewmodel/score_tracking_viewmodel.dart';
+import 'package:scorely/ui/game_selection/widgets/game_selection_screen.dart';
+import 'package:scorely/ui/game_selection/viewmodel/game_selection_viewmodel.dart';
+import 'package:scorely/ui/score_tracking/widgets/score_tracking_screen.dart';
+import 'package:scorely/ui/score_tracking/viewmodel/score_tracking_viewmodel.dart';
 import 'package:scorely/routing/routes.dart';
 import 'package:go_router/go_router.dart';
 

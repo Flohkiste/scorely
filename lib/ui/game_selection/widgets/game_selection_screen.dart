@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:scorely/features/game_selection/viewmodel/game_selection_viewmodel.dart';
-import 'package:scorely/features/game_selection/widgets/player_selection_widget.dart';
+import 'package:scorely/ui/game_selection/viewmodel/game_selection_viewmodel.dart';
+import 'package:scorely/ui/game_selection/widgets/player_selection_widget.dart';
 
 import 'package:scorely/routing/routes.dart';
 

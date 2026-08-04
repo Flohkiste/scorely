@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_logcat/flutter_logcat.dart';
-import 'package:scorely/features/game_selection/viewmodel/player_selection_viewmodel.dart';
+import 'package:scorely/ui/game_selection/viewmodel/player_selection_viewmodel.dart';
 import 'package:scorely/utils/result.dart';
 
 //TODO: Smaller Widgets

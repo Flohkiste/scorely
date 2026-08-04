@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:scorely/data/repositories/player_repository.dart';
-import 'package:scorely/features/game_selection/viewmodel/player_selection_viewmodel.dart';
-import 'package:scorely/features/game_selection/widgets/add_player_bottom_sheet.dart';
+import 'package:scorely/ui/game_selection/viewmodel/player_selection_viewmodel.dart';
+import 'package:scorely/ui/game_selection/widgets/add_player_bottom_sheet.dart';
 
 class PlayerSelectionWidget extends StatelessWidget {
   const PlayerSelectionWidget({super.key});
@@ -83,7 +83,10 @@ class _AddPlayerButton extends StatelessWidget {
         builder: (BuildContext context) =>
             AddPlayerBottomSheet(viewmodel: viewmodel),
       ),
-      child: const Text("Add"),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [Icon(Icons.add), const Text(" Create")],
+      ),
     );
   }
 }
@@ -107,15 +110,12 @@ class _PlayerSelectionButton extends StatelessWidget {
     final color = Theme.of(context).colorScheme;
 
     return FilledButton(
-      style: ButtonStyle(
-        backgroundColor: WidgetStateProperty.all(
-          isSelected ? color.primary : color.surface,
-        ),
-        foregroundColor: WidgetStateProperty.all(
-          isSelected ? color.onPrimary : color.onSurface,
-        ),
-
-        side: WidgetStateProperty.all(BorderSide(color: color.primary)),
+      style: FilledButton.styleFrom(
+        backgroundColor: isSelected ? color.primaryContainer : color.surface,
+        foregroundColor: isSelected
+            ? color.onPrimaryContainer
+            : color.onSurface,
+        side: BorderSide(color: color.primary),
       ),
       onPressed: onPressed,
       onLongPress: onLongPressed,
