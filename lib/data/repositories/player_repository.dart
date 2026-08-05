@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:scorely/business/model/player.dart';
+import 'package:scorely/domain/models/player/player.dart';
 import 'package:scorely/data/services/player_dao.dart';
 import 'package:scorely/utils/result.dart';
 
