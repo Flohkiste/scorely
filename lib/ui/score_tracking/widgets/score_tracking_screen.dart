@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:scorely/ui/score_tracking/viewmodel/score_tracking_viewmodel.dart';
 import 'package:scorely/routing/routes.dart';
-import 'package:scorely/ui/score_tracking/widgets/yatzy_widget.dart';
+import 'package:scorely/ui/score_tracking/widgets/yahtzee_widget.dart';
 
 class ScoreTrackingScreen extends StatelessWidget {
   const ScoreTrackingScreen({super.key, required this.viewModel});
@@ -27,7 +27,7 @@ class ScoreTrackingScreen extends StatelessWidget {
       body: ListenableBuilder(
         listenable: viewModel,
         builder: (context, child) {
-          return YatzyWidget();
+          return YahtzeeWidget();
         },
       ),
     );

@@ -1,23 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:scorely/data/repositories/player_repository.dart';
-import 'package:scorely/ui/score_tracking/viewmodel/yatzy_viewmodel.dart';
+import 'package:scorely/ui/score_tracking/viewmodel/yahtzee_viewmodel.dart';
 
-class YatzyWidget extends StatefulWidget {
-  const YatzyWidget({super.key});
+class YahtzeeWidget extends StatefulWidget {
+  const YahtzeeWidget({super.key});
 
   @override
-  State<YatzyWidget> createState() => _YatzyWidgetState();
+  State<YahtzeeWidget> createState() => _YahtzeeWidgetState();
 }
 
-class _YatzyWidgetState extends State<YatzyWidget> {
+class _YahtzeeWidgetState extends State<YahtzeeWidget> {
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider<YatzyViewmodel>(
+    return ChangeNotifierProvider<YahtzeeViewmodel>(
       create: (context) =>
-          YatzyViewmodel(playerRepository: context.read<PlayerRepository>())
+          YahtzeeViewmodel(playerRepository: context.read<PlayerRepository>())
             ..loadPlayers(),
-      child: Consumer<YatzyViewmodel>(
+      child: Consumer<YahtzeeViewmodel>(
         builder: (context, viewmodel, child) {
           return Padding(
             padding: const EdgeInsets.all(16.0),
