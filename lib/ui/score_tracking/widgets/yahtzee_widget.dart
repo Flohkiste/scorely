@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:scorely/data/repositories/game_repository.dart';
 import 'package:scorely/data/repositories/player_repository.dart';
 import 'package:scorely/ui/score_tracking/viewmodel/yahtzee_viewmodel.dart';
 
@@ -15,15 +16,22 @@ class _YahtzeeWidgetState extends State<YahtzeeWidget> {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<YahtzeeViewmodel>(
       create: (context) =>
-          YahtzeeViewmodel(playerRepository: context.read<PlayerRepository>())
-            ..loadPlayers(),
+          YahtzeeViewmodel(gameRepository: context.read<GameRepository>()),
       child: Consumer<YahtzeeViewmodel>(
         builder: (context, viewmodel, child) {
           return Padding(
             padding: const EdgeInsets.all(16.0),
-            child: Text(
-              'Players: ${viewmodel.selectedPlayers.map((p) => p.name).join(', ')}',
-              style: Theme.of(context).textTheme.bodyLarge,
+            child: Table(
+              border: TableBorder.all(),
+              children: [
+                TableRow(
+                  children: [
+                    TableCell(child: Center(child: Text("Head 1"))),
+                    TableCell(child: Center(child: Text('Header 2'))),
+                    TableCell(child: Center(child: Text('Header 3'))),
+                  ],
+                ),
+              ],
             ),
           );
         },

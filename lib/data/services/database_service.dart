@@ -25,7 +25,7 @@ class DatabaseService {
         await db.execute('PRAGMA foreign_keys = ON');
       },
       onCreate: (db, version) async {
-        // 1. Players Table
+        // 1. PLAYERS Table
         await db.execute('''
           CREATE TABLE ${DatabaseContract.tablePlayers} (
             ${DatabaseContract.columnPlayerId} INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -33,26 +33,66 @@ class DatabaseService {
           )
         ''');
 
-        // 2. Games Table
+        // 2. GAMES Table
         await db.execute('''
           CREATE TABLE ${DatabaseContract.tableGames} (
             ${DatabaseContract.columnGameId} INTEGER PRIMARY KEY AUTOINCREMENT,
-            ${DatabaseContract.columnCreatedAt} TEXT NOT NULL
+            ${DatabaseContract.columnGameCreatedAt} TEXT NOT NULL,
+            ${DatabaseContract.columnGameStatus} TEXT NOT NULL DEFAULT 'in_progress',
+            ${DatabaseContract.columnGameCurrentPlayerId} INTEGER,
+            FOREIGN KEY (${DatabaseContract.columnGameCurrentPlayerId}) 
+              REFERENCES ${DatabaseContract.tablePlayers} (${DatabaseContract.columnPlayerId}) 
+              ON DELETE SET NULL
           )
         ''');
 
-        // 3. Game-Players Table
+        // 3. GAME_PLAYERS Table
         await db.execute('''
           CREATE TABLE ${DatabaseContract.tableGamePlayers} (
+            ${DatabaseContract.columnGpId} INTEGER PRIMARY KEY AUTOINCREMENT,
             ${DatabaseContract.columnGpGameId} INTEGER NOT NULL,
             ${DatabaseContract.columnGpPlayerId} INTEGER NOT NULL,
-            ${DatabaseContract.columnGpScore} INTEGER NOT NULL DEFAULT 0,
-            PRIMARY KEY (${DatabaseContract.columnGpGameId}, ${DatabaseContract.columnGpPlayerId}),
-            FOREIGN KEY (${DatabaseContract.columnGpGameId}) REFERENCES ${DatabaseContract.tableGames} (${DatabaseContract.columnGameId}) ON DELETE CASCADE,
-            FOREIGN KEY (${DatabaseContract.columnGpPlayerId}) REFERENCES ${DatabaseContract.tablePlayers} (${DatabaseContract.columnPlayerId}) ON DELETE CASCADE
+            ${DatabaseContract.columnGpPlayerOrder} INTEGER NOT NULL,
+            ${DatabaseContract.columnGpTotalScore} INTEGER NOT NULL DEFAULT 0,
+            FOREIGN KEY (${DatabaseContract.columnGpGameId}) 
+              REFERENCES ${DatabaseContract.tableGames} (${DatabaseContract.columnGameId}) 
+              ON DELETE CASCADE,
+            FOREIGN KEY (${DatabaseContract.columnGpPlayerId}) 
+              REFERENCES ${DatabaseContract.tablePlayers} (${DatabaseContract.columnPlayerId}) 
+              ON DELETE CASCADE
+          )
+        ''');
+
+        // 4. SCORECARDS Table
+        await db.execute('''
+          CREATE TABLE ${DatabaseContract.tableScorecards} (
+            ${DatabaseContract.columnScId} INTEGER PRIMARY KEY AUTOINCREMENT,
+            ${DatabaseContract.columnScGamePlayerId} INTEGER UNIQUE NOT NULL,
+            ${DatabaseContract.columnScOnes} INTEGER,
+            ${DatabaseContract.columnScTwos} INTEGER,
+            ${DatabaseContract.columnScThrees} INTEGER,
+            ${DatabaseContract.columnScFours} INTEGER,
+            ${DatabaseContract.columnScFives} INTEGER,
+            ${DatabaseContract.columnScSixes} INTEGER,
+            ${DatabaseContract.columnScUpperBonus} INTEGER DEFAULT 0,
+            ${DatabaseContract.columnScThreeOfAKind} INTEGER,
+            ${DatabaseContract.columnScFourOfAKind} INTEGER,
+            ${DatabaseContract.columnScFullHouse} INTEGER,
+            ${DatabaseContract.columnScSmallStraight} INTEGER,
+            ${DatabaseContract.columnScLargeStraight} INTEGER,
+            ${DatabaseContract.columnScKniffel} INTEGER,
+            ${DatabaseContract.columnScChance} INTEGER,
+            FOREIGN KEY (${DatabaseContract.columnScGamePlayerId}) 
+              REFERENCES ${DatabaseContract.tableGamePlayers} (${DatabaseContract.columnGpId}) 
+              ON DELETE CASCADE
           )
         ''');
       },
     );
+  }
+
+  Future<void> close() async {
+    final db = await instance.database;
+    db.close();
   }
 }
