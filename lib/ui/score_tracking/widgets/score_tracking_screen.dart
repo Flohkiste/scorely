@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:scorely/ui/score_tracking/viewmodel/score_tracking_viewmodel.dart';
 import 'package:scorely/routing/routes.dart';
+import 'package:scorely/ui/score_tracking/widgets/yatzy_widget.dart';
 
 class ScoreTrackingScreen extends StatelessWidget {
   const ScoreTrackingScreen({super.key, required this.viewModel});
@@ -26,16 +27,7 @@ class ScoreTrackingScreen extends StatelessWidget {
       body: ListenableBuilder(
         listenable: viewModel,
         builder: (context, child) {
-          if (viewModel.isLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          if (viewModel.errorMessage != null) {
-            return Center(child: Text(viewModel.errorMessage!));
-          }
-          return Text(
-            "Spieler: ${viewModel.selectedPlayers.map((p) => p.name).join(', ')}",
-          );
+          return YatzyWidget();
         },
       ),
     );

@@ -23,7 +23,7 @@ GoRouter router() => GoRouter(
         return ScoreTrackingScreen(
           viewModel: ScoreTrackingViewmodel(
             playerRepository: context.read<PlayerRepository>(),
-          )..loadPlayers(),
+          ),
         );
       },
     ),
