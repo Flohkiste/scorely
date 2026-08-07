@@ -3,9 +3,4 @@ import 'package:scorely/domain/models/player.dart';
 import 'package:scorely/data/repositories/player_repository.dart';
 import 'package:scorely/utils/result.dart';
 
-class ScoreTrackingViewmodel extends ChangeNotifier {
-  final PlayerRepository _playerRepository;
-
-  ScoreTrackingViewmodel({required PlayerRepository playerRepository})
-    : _playerRepository = playerRepository;
-}
+class ScoreTrackingViewmodel extends ChangeNotifier {}

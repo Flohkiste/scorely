@@ -14,17 +14,17 @@ GoRouter router() => GoRouter(
     GoRoute(
       path: Routes.gameSelection,
       builder: (context, state) {
-        return GameSelectionScreen(viewModel: GameSelectionViewmodel());
+        return GameSelectionScreen(
+          viewModel: GameSelectionViewmodel(
+            playerRepository: context.read<PlayerRepository>(),
+          ),
+        );
       },
     ),
     GoRoute(
       path: Routes.scoreTracking,
       builder: (context, state) {
-        return ScoreTrackingScreen(
-          viewModel: ScoreTrackingViewmodel(
-            playerRepository: context.read<PlayerRepository>(),
-          ),
-        );
+        return ScoreTrackingScreen(viewModel: ScoreTrackingViewmodel());
       },
     ),
   ],
