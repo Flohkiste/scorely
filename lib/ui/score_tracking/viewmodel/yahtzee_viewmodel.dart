@@ -68,9 +68,11 @@ class YahtzeeViewmodel extends ChangeNotifier {
 
     switch (result) {
       case Ok():
-        return;
+        _errorMessage = null;
       case Error(error: final e):
         _errorMessage = e.toString();
     }
+    notifyListeners();
+    await loadGame();
   }
 }

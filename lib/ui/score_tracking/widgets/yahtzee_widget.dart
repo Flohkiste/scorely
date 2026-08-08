@@ -223,10 +223,10 @@ class _YahtzeeWidgetState extends State<YahtzeeWidget> {
           child: Text('CANCEL'),
         ),
         TextButton(
-          onPressed: () {
+          onPressed: () async {
             final value = int.tryParse(_textFieldController.text);
             if (value == null) return;
-            viewModel.updateScoreField(scorecardId, fieldName, value);
+            await viewModel.updateScoreField(scorecardId, fieldName, value);
             Navigator.pop(context);
           },
           child: Text('OK'),
