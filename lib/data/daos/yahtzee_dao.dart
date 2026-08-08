@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:scorely/data/services/database_contract.dart';
 import 'package:scorely/data/services/database_service.dart';
 import 'package:scorely/domain/models/game_detail.dart';
+import 'package:scorely/domain/models/game_status.dart';
 
 class YahtzeeDao {
   final DatabaseService _dbService;
@@ -21,7 +22,7 @@ class YahtzeeDao {
     final gameId = await db.transaction((txn) async {
       final gameId = await txn.insert(DatabaseContract.tableGames, {
         DatabaseContract.columnGameCreatedAt: DateTime.now().toIso8601String(),
-        DatabaseContract.columnGameStatus: 'running',
+        DatabaseContract.columnGameStatus: GameStatus.running.dbValue,
         DatabaseContract.columnGameCurrentPlayerId: playerIds.first,
       });
 
@@ -97,7 +98,7 @@ class YahtzeeDao {
     final result = await db.rawQuery('''
       SELECT ${DatabaseContract.columnGameId}
       FROM ${DatabaseContract.tableGames}
-      WHERE ${DatabaseContract.columnGameStatus} = 'running'
+      WHERE ${DatabaseContract.columnGameStatus} = ${GameStatus.running.dbValue}
       ORDER BY ${DatabaseContract.columnGameCreatedAt} DESC
       LIMIT 1
     ''');
@@ -111,10 +112,9 @@ class YahtzeeDao {
     return await fetchGameById(gameId);
   }
 
-  // TODO: Feld von spiel updaten
+  // Updates a ScoreField
   Future<void> updateScoreField(
     int scorecardId,
-    int gamePlayerId,
     String fieldName,
     int score,
   ) async {
@@ -138,6 +138,8 @@ class YahtzeeDao {
 
       if (scRows.isEmpty) return;
       final sc = scRows.first;
+
+      final gamePlayerId = sc[DatabaseContract.columnScGamePlayerId] as int;
 
       // 3. Obere Summe & Bonus prüfen
       final ones = (sc[DatabaseContract.columnScOnes] as int?) ?? 0;
@@ -190,5 +192,27 @@ class YahtzeeDao {
         whereArgs: [gamePlayerId],
       );
     });
+  }
+
+  Future<void> changeActivePlayer(int gameId, int activePlayerId) async {
+    final db = await _dbService.database;
+
+    await db.update(
+      DatabaseContract.tableGames,
+      {DatabaseContract.columnGameCurrentPlayerId: activePlayerId},
+      where: '${DatabaseContract.columnGameId} = ?',
+      whereArgs: [gameId],
+    );
+  }
+
+  Future<void> updateGameStatus(int gameId, GameStatus status) async {
+    final db = await _dbService.database;
+
+    await db.update(
+      DatabaseContract.tableGames,
+      {DatabaseContract.columnGameStatus: status.dbValue},
+      where: '${DatabaseContract.columnGameId} = ?',
+      whereArgs: [gameId],
+    );
   }
 }

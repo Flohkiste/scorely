@@ -1,4 +1,5 @@
 import 'package:path/path.dart';
+import 'package:scorely/domain/models/game_status.dart';
 import 'package:sqflite/sqflite.dart';
 import 'database_contract.dart';
 
@@ -38,7 +39,7 @@ class DatabaseService {
           CREATE TABLE ${DatabaseContract.tableGames} (
             ${DatabaseContract.columnGameId} INTEGER PRIMARY KEY AUTOINCREMENT,
             ${DatabaseContract.columnGameCreatedAt} TEXT NOT NULL,
-            ${DatabaseContract.columnGameStatus} TEXT NOT NULL DEFAULT 'in_progress',
+            ${DatabaseContract.columnGameStatus} TEXT NOT NULL DEFAULT ${GameStatus.running.dbValue},
             ${DatabaseContract.columnGameCurrentPlayerId} INTEGER,
             FOREIGN KEY (${DatabaseContract.columnGameCurrentPlayerId}) 
               REFERENCES ${DatabaseContract.tablePlayers} (${DatabaseContract.columnPlayerId}) 
