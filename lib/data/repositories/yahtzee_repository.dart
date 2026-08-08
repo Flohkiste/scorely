@@ -156,7 +156,7 @@ class YahtzeeRepository implements IYahtzeeRepository {
   Future<Result<void>> updateScoreField(
     int scorecardId,
     String fieldName,
-    int score,
+    int? score,
   ) async {
     try {
       await _yahtzeeDao.updateScoreField(scorecardId, fieldName, score);

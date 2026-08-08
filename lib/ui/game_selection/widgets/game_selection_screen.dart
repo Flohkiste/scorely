@@ -57,8 +57,8 @@ class _GameSelectionScreenState extends State<GameSelectionScreen> {
     if (!mounted) return;
 
     switch (result) {
-      case Ok():
-        context.push(Routes.scoreTracking);
+      case Ok(value: final gameId):
+        context.push(Routes.scoreTracking, extra: gameId);
       case Error(:final error):
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

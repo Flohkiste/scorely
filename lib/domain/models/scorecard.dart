@@ -19,7 +19,7 @@ class Scorecard {
   final int? fullHouse;
   final int? smallStraight;
   final int? largeStraight;
-  final int? kniffel;
+  final int? yahtzee;
   final int? chance;
 
   Scorecard({
@@ -37,7 +37,7 @@ class Scorecard {
     this.fullHouse,
     this.smallStraight,
     this.largeStraight,
-    this.kniffel,
+    this.yahtzee,
     this.chance,
   });
 
@@ -62,7 +62,7 @@ class Scorecard {
         (fullHouse ?? 0) +
         (smallStraight ?? 0) +
         (largeStraight ?? 0) +
-        (kniffel ?? 0) +
+        (yahtzee ?? 0) +
         (chance ?? 0);
 
     return upperScore + calculatedUpperBonus + lowerScore;
@@ -84,7 +84,7 @@ class Scorecard {
       fullHouse: map[DatabaseContract.columnScFullHouse] as int?,
       smallStraight: map[DatabaseContract.columnScSmallStraight] as int?,
       largeStraight: map[DatabaseContract.columnScLargeStraight] as int?,
-      kniffel: map[DatabaseContract.columnScKniffel] as int?,
+      yahtzee: map[DatabaseContract.columnScYahtzee] as int?,
       chance: map[DatabaseContract.columnScChance] as int?,
     );
   }
@@ -105,7 +105,7 @@ class Scorecard {
       DatabaseContract.columnScFullHouse: fullHouse,
       DatabaseContract.columnScSmallStraight: smallStraight,
       DatabaseContract.columnScLargeStraight: largeStraight,
-      DatabaseContract.columnScKniffel: kniffel,
+      DatabaseContract.columnScYahtzee: yahtzee,
       DatabaseContract.columnScChance: chance,
     };
   }
@@ -125,7 +125,7 @@ class Scorecard {
     int? fullHouse,
     int? smallStraight,
     int? largeStraight,
-    int? kniffel,
+    int? yahtzee,
     int? chance,
   }) {
     return Scorecard(
@@ -143,7 +143,7 @@ class Scorecard {
       fullHouse: fullHouse ?? this.fullHouse,
       smallStraight: smallStraight ?? this.smallStraight,
       largeStraight: largeStraight ?? this.largeStraight,
-      kniffel: kniffel ?? this.kniffel,
+      yahtzee: yahtzee ?? this.yahtzee,
       chance: chance ?? this.chance,
     );
   }

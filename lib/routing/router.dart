@@ -1,5 +1,6 @@
 import 'package:provider/provider.dart';
 import 'package:scorely/data/repositories/player_repository.dart';
+import 'package:scorely/data/repositories/yahtzee_repository.dart';
 import 'package:scorely/ui/game_selection/widgets/game_selection_screen.dart';
 import 'package:scorely/ui/game_selection/viewmodel/game_selection_viewmodel.dart';
 import 'package:scorely/ui/score_tracking/widgets/score_tracking_screen.dart';
@@ -17,6 +18,7 @@ GoRouter router() => GoRouter(
         return GameSelectionScreen(
           viewModel: GameSelectionViewmodel(
             playerRepository: context.read<PlayerRepository>(),
+            yahtzeeRepository: context.read<YahtzeeRepository>(),
           ),
         );
       },
@@ -24,7 +26,11 @@ GoRouter router() => GoRouter(
     GoRoute(
       path: Routes.scoreTracking,
       builder: (context, state) {
-        return ScoreTrackingScreen(viewModel: ScoreTrackingViewmodel());
+        final gameId = state.extra as int;
+        return ScoreTrackingScreen(
+          gameId: gameId,
+          viewModel: ScoreTrackingViewmodel(),
+        );
       },
     ),
   ],

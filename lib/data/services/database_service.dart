@@ -81,7 +81,7 @@ class DatabaseService {
             ${DatabaseContract.columnScFullHouse} INTEGER,
             ${DatabaseContract.columnScSmallStraight} INTEGER,
             ${DatabaseContract.columnScLargeStraight} INTEGER,
-            ${DatabaseContract.columnScKniffel} INTEGER,
+            ${DatabaseContract.columnScYahtzee} INTEGER,
             ${DatabaseContract.columnScChance} INTEGER,
             FOREIGN KEY (${DatabaseContract.columnScGamePlayerId}) 
               REFERENCES ${DatabaseContract.tableGamePlayers} (${DatabaseContract.columnGpId}) 

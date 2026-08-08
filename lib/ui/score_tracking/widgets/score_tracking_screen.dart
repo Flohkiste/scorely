@@ -5,9 +5,14 @@ import 'package:scorely/routing/routes.dart';
 import 'package:scorely/ui/score_tracking/widgets/yahtzee_widget.dart';
 
 class ScoreTrackingScreen extends StatelessWidget {
-  const ScoreTrackingScreen({super.key, required this.viewModel});
+  const ScoreTrackingScreen({
+    super.key,
+    required this.viewModel,
+    required this.gameId,
+  });
 
   final ScoreTrackingViewmodel viewModel;
+  final int gameId;
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +32,7 @@ class ScoreTrackingScreen extends StatelessWidget {
       body: ListenableBuilder(
         listenable: viewModel,
         builder: (context, child) {
-          return YahtzeeWidget();
+          return YahtzeeWidget(gameId: gameId);
         },
       ),
     );

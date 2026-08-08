@@ -28,7 +28,7 @@ abstract class DatabaseContract {
 
   // --- TABELLE: SCORECARD-Yahtzee ---
   // scorecard(id, game_player_id, ones, twos, threes, fours, fives, sixes,
-  // upper_bonus, three_of_a_kind, four_of_a_kind, full_house, small_straight, large_straight, kniffel, chance)
+  // upper_bonus, three_of_a_kind, four_of_a_kind, full_house, small_straight, large_straight, yahtzee, chance)
   static const String tableScorecards = 'scorecards_yahtzee';
   static const String columnScId = 'id';
   static const String columnScGamePlayerId = 'game_player_id';
@@ -48,6 +48,6 @@ abstract class DatabaseContract {
   static const String columnScFullHouse = 'full_house';
   static const String columnScSmallStraight = 'small_straight';
   static const String columnScLargeStraight = 'large_straight';
-  static const String columnScKniffel = 'kniffel';
+  static const String columnScYahtzee = 'yahtzee';
   static const String columnScChance = 'chance';
 }

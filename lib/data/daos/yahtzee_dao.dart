@@ -77,7 +77,7 @@ class YahtzeeDao {
       sc.${DatabaseContract.columnScFullHouse},
       sc.${DatabaseContract.columnScSmallStraight},
       sc.${DatabaseContract.columnScLargeStraight},
-      sc.${DatabaseContract.columnScKniffel},
+      sc.${DatabaseContract.columnScYahtzee},
       sc.${DatabaseContract.columnScChance}      
       FROM ${DatabaseContract.tableGames} g, ${DatabaseContract.tableGamePlayers} gp, ${DatabaseContract.tablePlayers} p, ${DatabaseContract.tableScorecards} sc
       WHERE p.${DatabaseContract.columnPlayerId} = gp.${DatabaseContract.columnGpPlayerId} AND 
@@ -116,7 +116,7 @@ class YahtzeeDao {
   Future<void> updateScoreField(
     int scorecardId,
     String fieldName,
-    int score,
+    int? score,
   ) async {
     final db = await _dbService.database;
 
@@ -170,7 +170,7 @@ class YahtzeeDao {
           (sc[DatabaseContract.columnScSmallStraight] as int?) ?? 0;
       final largeStraight =
           (sc[DatabaseContract.columnScLargeStraight] as int?) ?? 0;
-      final kniffel = (sc[DatabaseContract.columnScKniffel] as int?) ?? 0;
+      final yahtzee = (sc[DatabaseContract.columnScYahtzee] as int?) ?? 0;
       final chance = (sc[DatabaseContract.columnScChance] as int?) ?? 0;
 
       // 5. Total Score im GamePlayer aktualisieren
@@ -182,7 +182,7 @@ class YahtzeeDao {
           fullHouse +
           smallStraight +
           largeStraight +
-          kniffel +
+          yahtzee +
           chance;
 
       await txn.update(
