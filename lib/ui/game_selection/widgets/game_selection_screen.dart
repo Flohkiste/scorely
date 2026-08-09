@@ -27,7 +27,10 @@ class _GameSelectionScreenState extends State<GameSelectionScreen> {
           appBar: AppBar(
             title: const Text('Scorely'),
             actions: <Widget>[
-              IconButton(onPressed: () {}, icon: const Icon(Icons.settings)),
+              IconButton(
+                onPressed: () => widget.viewModel.deleteIosDatabase(),
+                icon: const Icon(Icons.settings),
+              ),
             ],
           ),
           body: const SingleChildScrollView(

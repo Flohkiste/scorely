@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:scorely/data/repositories/yahtzee_repository.dart';
 import 'package:scorely/data/services/database_contract.dart';
@@ -16,6 +17,7 @@ class YahtzeeWidget extends StatefulWidget {
 
 class _YahtzeeWidgetState extends State<YahtzeeWidget> {
   TextEditingController _textFieldController = TextEditingController();
+  bool _dialogShown = false;
 
   @override
   void dispose() {
@@ -47,6 +49,15 @@ class _YahtzeeWidgetState extends State<YahtzeeWidget> {
 
           if (viewmodel.game == null) {
             return const Center(child: Text('Keine Spieldaten verfügbar'));
+          }
+
+          if (!viewmodel.isGameRunning &&
+              viewmodel.winnerName != null &&
+              !_dialogShown) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              _dialogShown = true;
+              _showGameOverDialog(context, viewmodel.winnerName!);
+            });
           }
 
           return Padding(
@@ -101,6 +112,17 @@ class _YahtzeeWidgetState extends State<YahtzeeWidget> {
                 ),
 
                 // Upper Bonus etc.
+                TableRow(
+                  children: [
+                    _infoTableCell('Top Total'),
+                    ...viewmodel.game!.sessions.map((session) {
+                      return _infoTableCell(
+                        '-',
+                      ); // Später durch sc.topTotal ersetzen
+                    }),
+                  ],
+                ),
+
                 _buildScoreRow(
                   'THREE OF A KIND',
                   (sc) => sc.threeOfAKind,
@@ -232,6 +254,31 @@ class _YahtzeeWidgetState extends State<YahtzeeWidget> {
           child: Text('OK'),
         ),
       ],
+    );
+  }
+
+  void _showGameOverDialog(BuildContext context, String winnerName) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) => Dialog(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Text('$winnerName has won'),
+              const SizedBox(height: 15),
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text('Close'),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

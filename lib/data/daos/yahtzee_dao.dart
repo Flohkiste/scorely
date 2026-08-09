@@ -3,6 +3,7 @@ import 'package:scorely/data/services/database_contract.dart';
 import 'package:scorely/data/services/database_service.dart';
 import 'package:scorely/domain/models/game_detail.dart';
 import 'package:scorely/domain/models/game_status.dart';
+import 'package:sqflite/sqflite.dart';
 
 class YahtzeeDao {
   final DatabaseService _dbService;
@@ -214,5 +215,50 @@ class YahtzeeDao {
       where: '${DatabaseContract.columnGameId} = ?',
       whereArgs: [gameId],
     );
+  }
+
+  Future<int> fetchNumberOfNotNullFields(int gameId) async {
+    final db = await _dbService.database;
+
+    final result = await db.rawQuery(
+      '''
+      SELECT SUM(
+      (sc.${DatabaseContract.columnScOnes} IS NOT NULL) +
+      (sc.${DatabaseContract.columnScTwos} IS NOT NULL) +
+      (sc.${DatabaseContract.columnScThrees} IS NOT NULL) +
+      (sc.${DatabaseContract.columnScFours} IS NOT NULL) +
+      (sc.${DatabaseContract.columnScFives} IS NOT NULL) +
+      (sc.${DatabaseContract.columnScSixes} IS NOT NULL) +
+      (sc.${DatabaseContract.columnScThreeOfAKind} IS NOT NULL) +
+      (sc.${DatabaseContract.columnScFourOfAKind} IS NOT NULL) +
+      (sc.${DatabaseContract.columnScFullHouse} IS NOT NULL) +
+      (sc.${DatabaseContract.columnScSmallStraight} IS NOT NULL) +
+      (sc.${DatabaseContract.columnScLargeStraight} IS NOT NULL) +
+      (sc.${DatabaseContract.columnScYahtzee} IS NOT NULL) +
+      (sc.${DatabaseContract.columnScChance} IS NOT NULL)
+    ) AS not_null_count
+      FROM ${DatabaseContract.tableScorecards} AS sc, ${DatabaseContract.tableGamePlayers} AS gp
+      WHERE sc.${DatabaseContract.columnScGamePlayerId} = gp.${DatabaseContract.columnGpId} AND gp.${DatabaseContract.columnGpGameId} = ?
+    ''',
+      [gameId],
+    );
+
+    final count = result.first['not_null_count'] as int?;
+    return count ?? 0;
+  }
+
+  Future<bool> isGameFinished(int gameId) async {
+    final db = await _dbService.database;
+
+    // Get total player count for this game
+    final playerRows = await db.rawQuery(
+      'SELECT COUNT(*) as count FROM ${DatabaseContract.tableGamePlayers} WHERE ${DatabaseContract.columnGpGameId} = ?',
+      [gameId],
+    );
+    final playerCount = Sqflite.firstIntValue(playerRows) ?? 0;
+    final expectedTotalFields = playerCount * 13;
+
+    final filledFields = await fetchNumberOfNotNullFields(gameId);
+    return filledFields >= expectedTotalFields;
   }
 }

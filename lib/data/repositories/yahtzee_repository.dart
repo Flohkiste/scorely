@@ -20,6 +20,7 @@ abstract class IYahtzeeRepository {
   Future<Result<void>> changeActivePlayer(int gameId, int activePlayerId);
   Future<Result<void>> endGame(int gameId);
   Future<Result<List<GameDetail>>> loadGameHistory();
+  Future<Result<bool>> isGameFinished(int gameId);
 }
 
 class YahtzeeRepository implements IYahtzeeRepository {
@@ -161,6 +162,16 @@ class YahtzeeRepository implements IYahtzeeRepository {
     try {
       await _yahtzeeDao.updateScoreField(scorecardId, fieldName, score);
       return Result.ok(null);
+    } on Exception catch (e) {
+      return Result.error(e);
+    }
+  }
+
+  @override
+  Future<Result<bool>> isGameFinished(int gameId) async {
+    try {
+      final result = await _yahtzeeDao.isGameFinished(gameId);
+      return Result.ok(result);
     } on Exception catch (e) {
       return Result.error(e);
     }
