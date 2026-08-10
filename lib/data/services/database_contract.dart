@@ -1,13 +1,14 @@
 abstract class DatabaseContract {
   // Datenbank-Info
   static const String dbName = 'game_tracker.db';
-  static const int dbVersion = 1;
+  static const int dbVersion = 2;
 
   // --- TABELLE: PLAYERS ---
   // player(id, name)
   static const String tablePlayers = 'players';
   static const String columnPlayerId = 'id';
   static const String columnPlayerName = 'name';
+  static const String columnPlayerIsArchived = 'is_archived';
 
   // --- TABELLE: GAMES ---
   // game(id, created_at, status, current_player_id)

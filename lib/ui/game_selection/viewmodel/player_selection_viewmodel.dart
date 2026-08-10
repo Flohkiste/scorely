@@ -36,7 +36,7 @@ class PlayerSelectionViewmodel extends ChangeNotifier {
     _setLoading(true);
     _errorMessage = null;
 
-    final result = await _playerRepository.getPlayers();
+    final result = await _playerRepository.getActivePlayers();
 
     switch (result) {
       case Ok(value: final loadPlayers):

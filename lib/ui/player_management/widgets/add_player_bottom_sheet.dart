@@ -7,9 +7,9 @@ import 'package:scorely/utils/result.dart';
 //TODO: Beim Erstellen Fehler Anzeigen (Spielername gibts schon...)
 
 class AddPlayerBottomSheet extends StatefulWidget {
-  const AddPlayerBottomSheet({super.key, required this.viewmodel});
+  const AddPlayerBottomSheet({super.key, required this.addPlayerFunction});
 
-  final PlayerSelectionViewmodel viewmodel;
+  final Function addPlayerFunction;
 
   @override
   State<AddPlayerBottomSheet> createState() => _AddPlayerBottomSheetState();
@@ -47,7 +47,7 @@ class _AddPlayerBottomSheetState extends State<AddPlayerBottomSheet> {
             ),
             FilledButton(
               onPressed: () async {
-                final result = await widget.viewmodel.addPlayer(
+                final result = await widget.addPlayerFunction(
                   myController.text,
                 );
 
