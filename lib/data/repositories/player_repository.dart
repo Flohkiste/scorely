@@ -1,5 +1,4 @@
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:scorely/domain/models/player.dart';
 import 'package:scorely/data/daos/player_dao.dart';
 import 'package:scorely/utils/result.dart';
@@ -7,8 +6,12 @@ import 'package:scorely/utils/result.dart';
 abstract class IPlayerRepository {
   Future<Result<List<Player>>> getPlayers();
   Future<Result<Player>> getPlayerById(int id);
+  Future<Result<List<Player>>> getArchivedPlayers();
+  Future<Result<List<Player>>> getActivePlayers();
   Future<Result<Player>> createPlayer(String name);
   Future<Result<void>> deletePlayer(int id);
+  Future<Result<void>> archivePlayer(int playerId);
+  Future<Result<void>> activatePlayer(int playerId);
 }
 
 class PlayerRepository implements IPlayerRepository {
@@ -79,6 +82,48 @@ class PlayerRepository implements IPlayerRepository {
       final rawMaps = await _playerDao.fetchAll();
       final players = rawMaps.map((map) => Player.fromMap(map)).toList();
       return Result.ok(players);
+    } on Exception catch (e) {
+      return Result.error(e);
+    }
+  }
+
+  @override
+  Future<Result<List<Player>>> getActivePlayers() async {
+    try {
+      final rawMaps = await _playerDao.fetchActive();
+      final players = rawMaps.map((map) => Player.fromMap(map)).toList();
+      return Result.ok(players);
+    } on Exception catch (e) {
+      return Result.error(e);
+    }
+  }
+
+  @override
+  Future<Result<List<Player>>> getArchivedPlayers() async {
+    try {
+      final rawMaps = await _playerDao.fetchArchived();
+      final players = rawMaps.map((map) => Player.fromMap(map)).toList();
+      return Result.ok(players);
+    } on Exception catch (e) {
+      return Result.error(e);
+    }
+  }
+
+  @override
+  Future<Result<void>> activatePlayer(int playerId) async {
+    try {
+      await _playerDao.setArchivedStatus(playerId, false);
+      return Result.ok(null);
+    } on Exception catch (e) {
+      return Result.error(e);
+    }
+  }
+
+  @override
+  Future<Result<void>> archivePlayer(int playerId) async {
+    try {
+      await _playerDao.setArchivedStatus(playerId, true);
+      return Result.ok(null);
     } on Exception catch (e) {
       return Result.error(e);
     }

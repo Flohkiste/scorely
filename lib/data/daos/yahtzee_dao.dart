@@ -1,7 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:scorely/data/services/database_contract.dart';
 import 'package:scorely/data/services/database_service.dart';
-import 'package:scorely/domain/models/game_detail.dart';
 import 'package:scorely/domain/models/game_status.dart';
 import 'package:sqflite/sqflite.dart';
 
