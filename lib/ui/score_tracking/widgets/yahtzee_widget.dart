@@ -248,7 +248,9 @@ class _YahtzeeWidgetState extends State<YahtzeeWidget> {
             final value = int.tryParse(_textFieldController.text);
             if (value == null) return;
             await viewModel.updateScoreField(scorecardId, fieldName, value);
-            Navigator.pop(context);
+            if (mounted) {
+              Navigator.pop(context);
+            }
           },
           child: Text('OK'),
         ),
