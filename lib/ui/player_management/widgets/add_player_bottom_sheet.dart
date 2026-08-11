@@ -79,7 +79,6 @@ class _AddPlayerBottomSheetState extends State<AddPlayerBottomSheet> {
                           onPressed: isRunning
                               ? null
                               : () {
-                                  // Command einfach anstoßen (void)
                                   viewmodel.addPlayerCommand.run();
                                 },
                           child: isRunning

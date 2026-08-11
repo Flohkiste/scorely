@@ -17,6 +17,19 @@ class AddPlayerViewmodel extends ChangeNotifier {
       _createPlayer,
       initialValue: null,
     );
+
+    // Verbindet Command-Zustände mit dem UI-Rebuild
+    addPlayerCommand.errors.addListener(notifyListeners);
+    addPlayerCommand.isRunning.addListener(notifyListeners);
+
+    // Löscht Fehlermeldung, sobald der Nutzer anfängt zu tippen
+    nameController.addListener(_clearErrorOnTyping);
+  }
+
+  void _clearErrorOnTyping() {
+    if (addPlayerCommand.errors.value != null) {
+      addPlayerCommand.clearErrors();
+    }
   }
 
   Future<Player> _createPlayer() async {
@@ -26,13 +39,14 @@ class AddPlayerViewmodel extends ChangeNotifier {
       throw Exception("name can't be empty");
     }
 
+    // Sauberes Pattern Matching für den Result-Type
     final existingPlayersResult = await _playerRepository.getPlayers();
-    if (existingPlayersResult is Ok<List<Player>>) {
-      final exists = existingPlayersResult.value.any(
+    if (existingPlayersResult case Ok(value: final players)) {
+      final exists = players.any(
         (p) => p.name.trim().toLowerCase() == name.toLowerCase(),
       );
       if (exists) {
-        throw Exception("Spielername existiert bereits");
+        throw Exception("player already exist's");
       }
     }
 
@@ -48,7 +62,11 @@ class AddPlayerViewmodel extends ChangeNotifier {
 
   @override
   void dispose() {
+    nameController.removeListener(_clearErrorOnTyping);
     nameController.dispose();
+    addPlayerCommand.errors.removeListener(notifyListeners);
+    addPlayerCommand.isRunning.removeListener(notifyListeners);
+    addPlayerCommand.dispose(); // WICHTIG: Command aufräumen
     super.dispose();
   }
 }
