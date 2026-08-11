@@ -1,6 +1,4 @@
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:scorely/domain/models/player.dart';
 import 'package:scorely/data/daos/player_dao.dart';
 import 'package:scorely/utils/result.dart';

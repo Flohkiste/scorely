@@ -1,6 +1,5 @@
 import 'package:scorely/data/services/database_contract.dart';
 import 'package:scorely/data/services/database_service.dart';
-import 'package:scorely/utils/result.dart';
 import 'package:sqflite/sqflite.dart';
 
 class PlayerDao {

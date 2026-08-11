@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:scorely/data/repositories/yahtzee_repository.dart';
 import 'package:scorely/data/services/database_contract.dart';
@@ -16,7 +15,7 @@ class YahtzeeWidget extends StatefulWidget {
 }
 
 class _YahtzeeWidgetState extends State<YahtzeeWidget> {
-  TextEditingController _textFieldController = TextEditingController();
+  final TextEditingController _textFieldController = TextEditingController();
   bool _dialogShown = false;
 
   @override

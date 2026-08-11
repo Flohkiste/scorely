@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widget_previews.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:scorely/data/repositories/player_repository.dart';
@@ -62,7 +61,7 @@ class PlayerSelectionWidget extends StatelessWidget {
 
 class _Header extends StatelessWidget {
   final VoidCallback onPressed;
-  const _Header({super.key, required this.onPressed});
+  const _Header({required this.onPressed});
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -96,14 +95,12 @@ class _Header extends StatelessWidget {
 }
 
 class _AddPlayerButton extends StatelessWidget {
-  const _AddPlayerButton({super.key, required this.viewmodel});
+  const _AddPlayerButton({required this.viewmodel});
 
   final PlayerSelectionViewmodel viewmodel;
 
   @override
   Widget build(BuildContext context) {
-    final color = Theme.of(context).colorScheme;
-
     return FilledButton(
       onPressed: () => showModalBottomSheet(
         context: context,
@@ -125,7 +122,6 @@ class _PlayerSelectionButton extends StatelessWidget {
   final VoidCallback onLongPressed;
 
   const _PlayerSelectionButton({
-    super.key,
     required this.playerName,
     required this.isSelected,
     required this.onPressed,
