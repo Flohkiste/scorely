@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:scorely/data/repositories/player_repository.dart';
+import 'package:scorely/domain/models/player.dart';
 import 'package:scorely/routing/routes.dart';
 import 'package:scorely/ui/game_selection/viewmodel/player_selection_viewmodel.dart';
 import 'package:scorely/ui/player_management/widgets/add_player_bottom_sheet.dart';
@@ -99,14 +100,29 @@ class _AddPlayerButton extends StatelessWidget {
 
   final PlayerSelectionViewmodel viewmodel;
 
+  Future<void> _onAddPlayerPressed(BuildContext context) async {
+    // Öffnet das Sheet und wartet auf das Rückgabe-Objekt (Player)
+    final newPlayer = await showModalBottomSheet<Player>(
+      context: context,
+      isScrollControlled: true, // Wichtig für die Tastatur
+      builder: (context) => const AddPlayerBottomSheet(),
+    );
+
+    // Wenn ein Spieler erfolgreich erstellt wurde:
+    if (newPlayer != null && context.mounted) {
+      // 1. Spielerliste neu laden
+      await viewmodel.loadPlayers();
+
+      if (newPlayer.id != null && !viewmodel.isSelected(newPlayer.id!)) {
+        viewmodel.togglePlayerSelection(newPlayer.id!);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return FilledButton(
-      onPressed: () => showModalBottomSheet(
-        context: context,
-        builder: (BuildContext context) =>
-            AddPlayerBottomSheet(addPlayerFunction: viewmodel.addPlayer),
-      ),
+      onPressed: () => _onAddPlayerPressed(context),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [Icon(Icons.add), const Text(" Create")],

@@ -124,15 +124,22 @@ class _PlayerManagementScreenState extends State<PlayerManagementScreen> {
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => showModalBottomSheet(
-          context: context,
-          builder: (BuildContext context) => AddPlayerBottomSheet(
-            addPlayerFunction: widget.viewmodel.addPlayer,
-          ),
-        ),
+        onPressed: () => _onAddPlayerPressed(),
         tooltip: 'Add new player',
         child: Icon(Icons.add),
       ),
     );
+  }
+
+  Future<void> _onAddPlayerPressed() async {
+    final newPlayer = await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) => const AddPlayerBottomSheet(),
+    );
+
+    if (newPlayer != null) {
+      widget.viewmodel.loadPlayersCommand.run();
+    }
   }
 }
