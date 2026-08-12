@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:scorely/data/repositories/yahtzee_repository.dart';
+import 'package:scorely/domain/models/game_status.dart';
 import 'package:scorely/domain/models/game_summary.dart';
 import 'package:scorely/routing/router.dart';
+import 'package:scorely/routing/routes.dart';
 import 'package:scorely/ui/game_selection/viewmodel/game_history_viewmodel.dart';
 
 class GameHistoryWidget extends StatefulWidget {
@@ -86,7 +89,34 @@ class _GameHistoryWidgetState extends State<GameHistoryWidget> with RouteAware {
                   physics: const NeverScrollableScrollPhysics(),
                   children: [
                     ...viewmodel.gameSummarys.map((game) {
-                      return GameSummaryCard(summary: game);
+                      return GameSummaryCard(
+                        summary: game,
+                        onResume: () {
+                          context.push(Routes.scoreTracking, extra: game.id);
+                        },
+                        onPlayAgain: () async {
+                          try {
+                            // Command ausführen (execute/run)
+                            final newGameId = await viewmodel.replayGameCommand
+                                .runAsync(game.id);
+
+                            // 1. Kontext-Prüfung nach async-Await (Build-Context-Safety)
+                            if (!context.mounted) return;
+
+                            // 2. Nur navigieren, wenn eine gültige ID zurückgegeben wurde
+                            if (newGameId != null) {
+                              context.push(
+                                Routes.scoreTracking,
+                                extra: newGameId,
+                              );
+                            }
+                          } catch (e) {
+                            // Falls eine Exception geworfen wird, fängt command_it diese zwar ab
+                            // und speichert sie in command.thrownExceptions, aber try-catch
+                            // verhindert hier die unvollständige Navigation.
+                          }
+                        },
+                      );
                     }),
                   ],
                 ),
@@ -124,11 +154,22 @@ class _Header extends StatelessWidget {
   }
 }
 
+// Beispielhaftes Model (falls noch nicht vorhanden, um isFinished zu berücksichtigen)
+// class GameSummary { ... final bool isFinished; ... }
+
 class GameSummaryCard extends StatelessWidget {
   final GameSummary summary;
   final VoidCallback? onTap;
+  final VoidCallback? onPlayAgain;
+  final VoidCallback? onResume;
 
-  const GameSummaryCard({super.key, required this.summary, this.onTap});
+  const GameSummaryCard({
+    super.key,
+    required this.summary,
+    this.onTap,
+    this.onPlayAgain,
+    this.onResume,
+  });
 
   static const _rankColors = [
     Color(0xFFFFD700), // Gold
@@ -139,6 +180,7 @@ class GameSummaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isFinished = summary.status == GameStatus.completed;
 
     return Card(
       elevation: 0,
@@ -156,6 +198,7 @@ class GameSummaryCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Header: Datum & Spieleranzahl
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -197,6 +240,7 @@ class GameSummaryCard extends StatelessWidget {
               ),
               const SizedBox(height: 12),
 
+              // Rangliste (Top 3)
               if (summary.topThreePlayers.isNotEmpty)
                 Column(
                   children: List.generate(summary.topThreePlayers.length, (
@@ -247,6 +291,24 @@ class GameSummaryCard extends StatelessWidget {
                     );
                   }),
                 ),
+
+              const SizedBox(height: 16),
+
+              // Action Button (Resume vs Play Again)
+              SizedBox(
+                width: double.infinity,
+                child: isFinished
+                    ? FilledButton.tonalIcon(
+                        onPressed: onPlayAgain,
+                        icon: const Icon(Icons.replay_rounded, size: 18),
+                        label: const Text('Erneut spielen'),
+                      )
+                    : FilledButton.icon(
+                        onPressed: onResume,
+                        icon: const Icon(Icons.play_arrow_rounded, size: 18),
+                        label: const Text('Fortsetzen'),
+                      ),
+              ),
             ],
           ),
         ),

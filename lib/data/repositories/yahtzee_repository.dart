@@ -22,6 +22,7 @@ abstract class IYahtzeeRepository {
   Future<Result<void>> endGame(int gameId);
   Future<Result<List<GameSummary>>> loadGameHistory();
   Future<Result<bool>> isGameFinished(int gameId);
+  Future<Result<int>> replayGame(int gameId);
 }
 
 class YahtzeeRepository implements IYahtzeeRepository {
@@ -184,6 +185,31 @@ class YahtzeeRepository implements IYahtzeeRepository {
     try {
       final result = await _yahtzeeDao.isGameFinished(gameId);
       return Result.ok(result);
+    } on Exception catch (e) {
+      return Result.error(e);
+    }
+  }
+
+  @override
+  Future<Result<int>> replayGame(int gameId) async {
+    try {
+      final gameResult = await loadGameById(gameId);
+
+      switch (gameResult) {
+        case Ok(value: final game):
+          final playerIds = game.sessions
+              .map((session) => session.player.id)
+              .whereType<int>()
+              .toList();
+
+          if (playerIds.isEmpty) {
+            return Result.error(Exception('Error, no player ids found'));
+          }
+          return await createGame(playerIds);
+
+        case Error(error: final error):
+          return Result.error(error);
+      }
     } on Exception catch (e) {
       return Result.error(e);
     }
