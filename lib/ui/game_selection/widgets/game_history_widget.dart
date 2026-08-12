@@ -116,6 +116,8 @@ class _GameHistoryWidgetState extends State<GameHistoryWidget> with RouteAware {
                             // verhindert hier die unvollständige Navigation.
                           }
                         },
+                        onDelete: () =>
+                            viewmodel.deleteGameCommand.run(game.id),
                       );
                     }),
                   ],
@@ -162,6 +164,7 @@ class GameSummaryCard extends StatelessWidget {
   final VoidCallback? onTap;
   final VoidCallback? onPlayAgain;
   final VoidCallback? onResume;
+  final VoidCallback? onDelete;
 
   const GameSummaryCard({
     super.key,
@@ -169,6 +172,7 @@ class GameSummaryCard extends StatelessWidget {
     this.onTap,
     this.onPlayAgain,
     this.onResume,
+    this.onDelete,
   });
 
   static const _rankColors = [
@@ -182,134 +186,155 @@ class GameSummaryCard extends StatelessWidget {
     final theme = Theme.of(context);
     final isFinished = summary.status == GameStatus.completed;
 
-    return Card(
-      elevation: 0,
-      color: theme.colorScheme.surfaceContainerLow,
-      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: theme.colorScheme.outlineVariant, width: 1),
+    return Dismissible(
+      key: Key(summary.id.toString()),
+      direction: DismissDirection.endToStart,
+      onDismissed: (direction) {
+        onDelete?.call();
+      },
+      background: Container(
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.only(right: 24),
+        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.error,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: const Icon(
+          Icons.delete_outline_rounded,
+          color: Colors.white,
+          size: 28,
+        ),
       ),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(16),
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header: Datum & Spieleranzahl
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.schedule_rounded,
-                        size: 15,
-                        color: theme.colorScheme.outline,
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        _formatDateTime(summary.createdAt),
-                        style: theme.textTheme.labelMedium?.copyWith(
+      child: Card(
+        elevation: 0,
+        color: theme.colorScheme.surfaceContainerLow,
+        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(color: theme.colorScheme.outlineVariant, width: 1),
+        ),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Header: Datum & Spieleranzahl
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.schedule_rounded,
+                          size: 15,
                           color: theme.colorScheme.outline,
-                          fontWeight: FontWeight.w600,
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          _formatDateTime(summary.createdAt),
+                          style: theme.textTheme.labelMedium?.copyWith(
+                            color: theme.colorScheme.outline,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.surfaceContainerHigh,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        '${summary.totalPlayers} Spieler',
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: theme.colorScheme.onSurfaceVariant,
                         ),
                       ),
-                    ],
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 2,
                     ),
-                    decoration: BoxDecoration(
-                      color: theme.colorScheme.surfaceContainerHigh,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      '${summary.totalPlayers} Spieler',
-                      style: theme.textTheme.labelSmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
+                  ],
+                ),
+                const SizedBox(height: 12),
 
-              // Rangliste (Top 3)
-              if (summary.topThreePlayers.isNotEmpty)
-                Column(
-                  children: List.generate(summary.topThreePlayers.length, (
-                    index,
-                  ) {
-                    final player = summary.topThreePlayers[index];
-                    final isWinner = index == 0;
+                // Rangliste (Top 3)
+                if (summary.topThreePlayers.isNotEmpty)
+                  Column(
+                    children: List.generate(summary.topThreePlayers.length, (
+                      index,
+                    ) {
+                      final player = summary.topThreePlayers[index];
+                      final isWinner = index == 0;
 
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 4.0),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.emoji_events_rounded,
-                            size: isWinner ? 20 : 16,
-                            color: _rankColors[index],
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              player.name,
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4.0),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.emoji_events_rounded,
+                              size: isWinner ? 20 : 16,
+                              color: _rankColors[index],
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                player.name,
+                                style: TextStyle(
+                                  fontWeight: isWinner
+                                      ? FontWeight.bold
+                                      : FontWeight.normal,
+                                  fontSize: isWinner ? 15 : 14,
+                                  color: isWinner
+                                      ? theme.colorScheme.onSurface
+                                      : theme.colorScheme.onSurfaceVariant,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            Text(
+                              '${player.score} Pkt',
                               style: TextStyle(
                                 fontWeight: isWinner
                                     ? FontWeight.bold
-                                    : FontWeight.normal,
+                                    : FontWeight.w500,
                                 fontSize: isWinner ? 15 : 14,
                                 color: isWinner
-                                    ? theme.colorScheme.onSurface
+                                    ? theme.colorScheme.primary
                                     : theme.colorScheme.onSurfaceVariant,
                               ),
-                              overflow: TextOverflow.ellipsis,
                             ),
-                          ),
-                          Text(
-                            '${player.score} Pkt',
-                            style: TextStyle(
-                              fontWeight: isWinner
-                                  ? FontWeight.bold
-                                  : FontWeight.w500,
-                              fontSize: isWinner ? 15 : 14,
-                              color: isWinner
-                                  ? theme.colorScheme.primary
-                                  : theme.colorScheme.onSurfaceVariant,
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  }),
+                          ],
+                        ),
+                      );
+                    }),
+                  ),
+
+                const SizedBox(height: 16),
+
+                // Action Button (Resume vs Play Again)
+                SizedBox(
+                  width: double.infinity,
+                  child: isFinished
+                      ? FilledButton.tonalIcon(
+                          onPressed: onPlayAgain,
+                          icon: const Icon(Icons.replay_rounded, size: 18),
+                          label: const Text('Erneut spielen'),
+                        )
+                      : FilledButton.icon(
+                          onPressed: onResume,
+                          icon: const Icon(Icons.play_arrow_rounded, size: 18),
+                          label: const Text('Fortsetzen'),
+                        ),
                 ),
-
-              const SizedBox(height: 16),
-
-              // Action Button (Resume vs Play Again)
-              SizedBox(
-                width: double.infinity,
-                child: isFinished
-                    ? FilledButton.tonalIcon(
-                        onPressed: onPlayAgain,
-                        icon: const Icon(Icons.replay_rounded, size: 18),
-                        label: const Text('Erneut spielen'),
-                      )
-                    : FilledButton.icon(
-                        onPressed: onResume,
-                        icon: const Icon(Icons.play_arrow_rounded, size: 18),
-                        label: const Text('Fortsetzen'),
-                      ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

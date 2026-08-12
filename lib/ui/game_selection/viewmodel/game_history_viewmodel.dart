@@ -17,10 +17,12 @@ class GameHistoryViewmodel extends ChangeNotifier {
       _replayGame,
       initialValue: null,
     );
+    deleteGameCommand = Command.createAsync(_deleteGame, initialValue: null);
   }
 
   late final Command<void, void> loadHistoryCommand;
   late final Command<int, int?> replayGameCommand;
+  late final Command<int, void> deleteGameCommand;
 
   List<GameSummary> _gameSummarys = [];
 
@@ -41,6 +43,17 @@ class GameHistoryViewmodel extends ChangeNotifier {
 
   Future<int> _replayGame(int gameId) async {
     final result = await _yahtzeeRepository.replayGame(gameId);
+
+    switch (result) {
+      case Ok(value: final value):
+        return value;
+      case Error(error: final error):
+        throw error;
+    }
+  }
+
+  Future<void> _deleteGame(int gameId) async {
+    final result = await _yahtzeeRepository.deleteGame(gameId);
 
     switch (result) {
       case Ok(value: final value):
