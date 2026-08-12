@@ -8,6 +8,16 @@ class YahtzeeDao {
 
   YahtzeeDao({required DatabaseService dbService}) : _dbService = dbService;
 
+  Future<int> deleteGame(int gameId) async {
+    final db = await _dbService.database;
+
+    return await db.delete(
+      DatabaseContract.tableGames,
+      where: '${DatabaseContract.columnGameId} = ?',
+      whereArgs: [gameId],
+    );
+  }
+
   // Creates a new game with player ids
   Future<int> createGameWithPlayers(List<int> playerIds) async {
     if (playerIds.length < 2) {
