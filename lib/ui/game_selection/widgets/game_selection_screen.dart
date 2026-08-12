@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:scorely/routing/routes.dart';
 import 'package:scorely/ui/game_selection/viewmodel/game_selection_viewmodel.dart';
+import 'package:scorely/ui/game_selection/widgets/game_history_widget.dart';
 import 'package:scorely/ui/game_selection/widgets/player_selection_widget.dart';
 import 'package:scorely/utils/result.dart';
 
@@ -27,15 +28,12 @@ class _GameSelectionScreenState extends State<GameSelectionScreen> {
           appBar: AppBar(
             title: const Text('Scorely'),
             actions: <Widget>[
-              IconButton(
-                onPressed: () => widget.viewModel.deleteIosDatabase(),
-                icon: const Icon(Icons.settings),
-              ),
+              IconButton(onPressed: () {}, icon: const Icon(Icons.settings)),
             ],
           ),
           body: const SingleChildScrollView(
             child: Column(
-              children: <Widget>[PlayerSelectionWidget(), Text('Game History')],
+              children: <Widget>[PlayerSelectionWidget(), GameHistoryWidget()],
             ),
           ),
           floatingActionButton: FloatingActionButton.extended(

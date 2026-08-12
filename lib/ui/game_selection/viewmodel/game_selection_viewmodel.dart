@@ -31,13 +31,4 @@ class GameSelectionViewmodel extends ChangeNotifier {
 
     return result;
   }
-
-  Future<void> deleteIosDatabase() async {
-    // 1. Pfad zum Documents/Databases Ordner der App auf iOS
-    final dbPath = await getDatabasesPath();
-    final path = join(dbPath, 'scorely.db'); // deinen DB-Namen anpassen
-
-    // 2. Datenbank löschen
-    await deleteDatabase(path);
-  }
 }

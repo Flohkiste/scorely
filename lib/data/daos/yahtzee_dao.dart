@@ -91,6 +91,57 @@ class YahtzeeDao {
     return result;
   }
 
+  Future<List<Map<String, dynamic>>> fetchGameHistory() async {
+    final db = await _dbService.database;
+
+    final games = await db.rawQuery('''
+    SELECT 
+      g.${DatabaseContract.columnGameId} AS game_id,
+      g.${DatabaseContract.columnGameCreatedAt} AS created_at,
+      g.${DatabaseContract.columnGameStatus} AS status,
+      COUNT(gp.${DatabaseContract.columnGpId}) AS total_players
+    FROM ${DatabaseContract.tableGames} g
+    JOIN ${DatabaseContract.tableGamePlayers} gp 
+      ON g.${DatabaseContract.columnGameId} = gp.${DatabaseContract.columnGpGameId}
+    GROUP BY g.${DatabaseContract.columnGameId}
+    ORDER BY g.${DatabaseContract.columnGameCreatedAt} DESC
+  ''');
+
+    if (games.isEmpty) return [];
+
+    final List<Map<String, dynamic>> summaries = [];
+
+    for (final game in games) {
+      final gameId = game['game_id'] as int;
+
+      final topPlayers = await db.rawQuery(
+        '''
+      SELECT 
+        p.${DatabaseContract.columnPlayerName} AS player_name,
+        gp.${DatabaseContract.columnGpTotalScore} AS total_score
+      FROM ${DatabaseContract.tableGamePlayers} gp
+      JOIN ${DatabaseContract.tablePlayers} p 
+        ON gp.${DatabaseContract.columnGpPlayerId} = p.${DatabaseContract.columnPlayerId}
+      WHERE gp.${DatabaseContract.columnGpGameId} = ?
+      ORDER BY gp.${DatabaseContract.columnGpTotalScore} DESC
+      LIMIT 3
+    ''',
+        [gameId],
+      );
+
+      summaries.add({
+        'game_id': game['game_id'],
+        'created_at': game['created_at'],
+        'status': game['status'],
+        'total_players': game['total_players'],
+        'top_players':
+            topPlayers, // Enthält Liste von Maps mit player_name & total_score
+      });
+    }
+
+    return summaries;
+  }
+
   // Returns last created and still running game
   Future<List<Map<String, dynamic>>?> fetchGameByRunning() async {
     final db = await _dbService.database;

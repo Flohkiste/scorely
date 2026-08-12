@@ -3,6 +3,7 @@ import 'package:scorely/data/services/database_contract.dart';
 import 'package:scorely/domain/models/game.dart';
 import 'package:scorely/domain/models/game_detail.dart';
 import 'package:scorely/domain/models/game_status.dart';
+import 'package:scorely/domain/models/game_summary.dart';
 import 'package:scorely/domain/models/gameplayer.dart';
 import 'package:scorely/domain/models/player.dart';
 import 'package:scorely/domain/models/scorecard.dart';
@@ -19,7 +20,7 @@ abstract class IYahtzeeRepository {
   );
   Future<Result<void>> changeActivePlayer(int gameId, int activePlayerId);
   Future<Result<void>> endGame(int gameId);
-  Future<Result<List<GameDetail>>> loadGameHistory();
+  Future<Result<List<GameSummary>>> loadGameHistory();
   Future<Result<bool>> isGameFinished(int gameId);
 }
 
@@ -85,9 +86,20 @@ class YahtzeeRepository implements IYahtzeeRepository {
   }
 
   @override
-  Future<Result<List<GameDetail>>> loadGameHistory() {
-    // TODO: implement loadGameHistory
-    throw UnimplementedError();
+  Future<Result<List<GameSummary>>> loadGameHistory() async {
+    try {
+      final rawData = await _yahtzeeDao.fetchGameHistory();
+
+      if (rawData.isEmpty) {
+        return Result.ok([]);
+      }
+
+      final summaries = rawData.map((map) => GameSummary.fromMap(map)).toList();
+
+      return Result.ok(summaries);
+    } on Exception catch (e) {
+      return Result.error(e);
+    }
   }
 
   // load running game returns null if no game is currently running

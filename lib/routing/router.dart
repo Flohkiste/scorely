@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:scorely/data/repositories/player_repository.dart';
 import 'package:scorely/data/repositories/yahtzee_repository.dart';
@@ -10,7 +11,10 @@ import 'package:scorely/ui/score_tracking/viewmodel/score_tracking_viewmodel.dar
 import 'package:scorely/routing/routes.dart';
 import 'package:go_router/go_router.dart';
 
+final routeObserver = RouteObserver<ModalRoute<void>>();
+
 GoRouter router() => GoRouter(
+  observers: [routeObserver],
   initialLocation: Routes.gameSelection,
   debugLogDiagnostics: true,
   routes: [
