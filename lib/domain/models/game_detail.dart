@@ -13,6 +13,13 @@ class GameDetail {
   PlayerGameSession? getPlayerGameSession(int playerId) {
     return sessions.where((s) => s.player.id == playerId).firstOrNull;
   }
+
+  int? getPlayerIndex(int playerId) {
+    final index = sessions.indexWhere(
+      (session) => session.player.id == playerId,
+    );
+    return index != -1 ? index : null;
+  }
 }
 
 /// Verbindet den Spieler, seine Session-Daten und seine Scorecard

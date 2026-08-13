@@ -9,7 +9,6 @@ import 'package:scorely/ui/score_tracking/viewmodel/yahtzee_viewmodel.dart';
 
 class YahtzeeWidget extends StatefulWidget {
   const YahtzeeWidget({super.key, required this.gameId});
-
   final int gameId;
 
   @override
@@ -18,6 +17,19 @@ class YahtzeeWidget extends StatefulWidget {
 
 class _YahtzeeWidgetState extends State<YahtzeeWidget> {
   bool _dialogShown = false;
+  late final PageController _pageController;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController();
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -57,9 +69,28 @@ class _YahtzeeWidgetState extends State<YahtzeeWidget> {
             });
           }
 
+          if (viewmodel.currentPlayerId != null) {
+            final activeIndex = viewmodel.game!.getPlayerIndex(
+              viewmodel.currentPlayerId!,
+            );
+            if (activeIndex != null) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (_pageController.hasClients &&
+                    _pageController.page?.round() != activeIndex) {
+                  _pageController.animateToPage(
+                    activeIndex,
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeInOut,
+                  );
+                }
+              });
+            }
+          }
+
           return Padding(
             padding: const EdgeInsets.all(16.0),
             child: PageView.builder(
+              controller: _pageController,
               itemBuilder: (context, index) {
                 return TableById(
                   playerScorecard: viewmodel.game!.sessions[index],
