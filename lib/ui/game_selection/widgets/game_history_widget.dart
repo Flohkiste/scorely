@@ -110,11 +110,10 @@ class _GameHistoryWidgetState extends State<GameHistoryWidget> with RouteAware {
                                 extra: newGameId,
                               );
                             }
-                          } catch (e) {
-                            // Falls eine Exception geworfen wird, fängt command_it diese zwar ab
-                            // und speichert sie in command.thrownExceptions, aber try-catch
-                            // verhindert hier die unvollständige Navigation.
-                          }
+                          } catch (e) {}
+                        },
+                        onTap: () {
+                          context.push(Routes.scoreTracking, extra: game.id);
                         },
                         onDelete: () =>
                             viewmodel.deleteGameCommand.run(game.id),
