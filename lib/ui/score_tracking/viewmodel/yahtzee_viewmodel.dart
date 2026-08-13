@@ -55,6 +55,8 @@ class YahtzeeViewmodel extends ChangeNotifier {
         _errorMessage = e.toString();
     }
 
+    await loadCurrentPlayerId();
+
     _isLoading = false;
     notifyListeners();
   }
@@ -85,6 +87,17 @@ class YahtzeeViewmodel extends ChangeNotifier {
     }
   }
 
+  bool _isCurrentPlayerScorecard(int scorecardId) {
+    if (_game == null || _currentPlayerId == null) return false;
+
+    return _game!.sessions.any(
+      (session) =>
+          session.scorecard.id == scorecardId &&
+          session.player.id ==
+              _currentPlayerId, // Pass hier ggf. 'session.player.id' an deine Model-Struktur an (z.B. session.gamePlayer.playerId)
+    );
+  }
+
   Future<void> _updateScoreField(
     int scorecardId,
     String fieldName,
@@ -111,8 +124,10 @@ class YahtzeeViewmodel extends ChangeNotifier {
       _determineWinner();
     }
 
-    await _yahtzeeRepository.changeActivePlayer(_gameId);
-    loadCurrentPlayerId();
+    if (_isCurrentPlayerScorecard(scorecardId)) {
+      await _yahtzeeRepository.changeActivePlayer(_gameId);
+      await loadCurrentPlayerId();
+    }
 
     notifyListeners();
   }
