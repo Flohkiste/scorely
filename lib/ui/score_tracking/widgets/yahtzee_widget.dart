@@ -6,6 +6,7 @@ import 'package:scorely/data/services/database_contract.dart';
 import 'package:scorely/domain/models/game_detail.dart';
 import 'package:scorely/domain/models/scorecard.dart';
 import 'package:scorely/ui/score_tracking/viewmodel/yahtzee_viewmodel.dart';
+import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class YahtzeeWidget extends StatefulWidget {
   const YahtzeeWidget({super.key, required this.gameId});
@@ -18,6 +19,7 @@ class YahtzeeWidget extends StatefulWidget {
 class _YahtzeeWidgetState extends State<YahtzeeWidget> {
   bool _dialogShown = false;
   late final PageController _pageController;
+  int _currentPage = 0; // 1. Aktuelle Seite im State verwalten
 
   @override
   void initState() {
@@ -74,7 +76,7 @@ class _YahtzeeWidgetState extends State<YahtzeeWidget> {
               viewmodel.currentPlayerId!,
             );
             if (activeIndex != null) {
-              WidgetsBinding.instance.addPostFrameCallback((_) {
+              /* WidgetsBinding.instance.addPostFrameCallback((_) {
                 if (_pageController.hasClients &&
                     _pageController.page?.round() != activeIndex) {
                   _pageController.animateToPage(
@@ -83,21 +85,55 @@ class _YahtzeeWidgetState extends State<YahtzeeWidget> {
                     curve: Curves.easeInOut,
                   );
                 }
-              });
+              }); */
             }
           }
 
+          final totalSessions = viewmodel.game!.sessions.length;
+          final safeIndex = _currentPage.clamp(0, totalSessions - 1);
+          final currentSession = viewmodel.game!.sessions[safeIndex];
+
           return Padding(
             padding: const EdgeInsets.all(16.0),
-            child: PageView.builder(
-              controller: _pageController,
-              itemBuilder: (context, index) {
-                return TableById(
-                  playerScorecard: viewmodel.game!.sessions[index],
-                  updateScoreFieldCommand: viewmodel.updateScoreFieldCommand,
-                );
-              },
-              itemCount: viewmodel.game?.sessions.length,
+            child: Column(
+              children: [
+                // 2. Den Spieler-Namen direkt aus der aktuellen Session übergeben
+                _Header(
+                  playerName: currentSession.player.name,
+                  pageController: _pageController,
+                ),
+                Expanded(
+                  child: PageView.builder(
+                    controller: _pageController,
+                    itemCount: totalSessions,
+                    // 3. Beim Wischen den State aktualisieren
+                    onPageChanged: (index) {
+                      setState(() {
+                        _currentPage = index;
+                      });
+                    },
+                    itemBuilder: (context, index) {
+                      return _TableById(
+                        playerScorecard: viewmodel.game!.sessions[index],
+                        updateScoreFieldCommand:
+                            viewmodel.updateScoreFieldCommand,
+                      );
+                    },
+                  ),
+                ),
+                SmoothPageIndicator(
+                  controller: _pageController,
+                  count: totalSessions,
+                  effect: const WormEffect(),
+                  onDotClicked: (index) {
+                    _pageController.animateToPage(
+                      index,
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeInOut,
+                    );
+                  },
+                ),
+              ],
             ),
           );
         },
@@ -131,10 +167,57 @@ class _YahtzeeWidgetState extends State<YahtzeeWidget> {
   }
 }
 
-class TableById extends StatefulWidget {
+class _Header extends StatelessWidget {
+  final String _playerName;
+  final PageController _pageController;
+
+  const _Header({
+    super.key,
+    required String playerName,
+    required PageController pageController,
+  }) : _playerName = playerName,
+       _pageController = pageController;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          IconButton(
+            onPressed: () {
+              if (_pageController.hasClients) {
+                _pageController.previousPage(
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                );
+              }
+            },
+            icon: const Icon(Icons.arrow_left),
+          ),
+          Text(_playerName, style: Theme.of(context).textTheme.titleLarge),
+          IconButton(
+            onPressed: () {
+              if (_pageController.hasClients) {
+                _pageController.nextPage(
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                );
+              }
+            },
+            icon: const Icon(Icons.arrow_right),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _TableById extends StatefulWidget {
   final PlayerGameSession _playerGameSession;
 
-  const TableById({
+  const _TableById({
     super.key,
     required PlayerGameSession playerScorecard,
     required Command<(int scorecardId, String fieldName, int? score), void>
@@ -142,18 +225,10 @@ class TableById extends StatefulWidget {
   }) : _playerGameSession = playerScorecard;
 
   @override
-  State<TableById> createState() => _TableByIdState();
+  State<_TableById> createState() => _TableByIdState();
 }
 
-class _TableByIdState extends State<TableById> {
-  final TextEditingController _textFieldController = TextEditingController();
-
-  @override
-  void dispose() {
-    _textFieldController.dispose();
-    super.dispose();
-  }
-
+class _TableByIdState extends State<_TableById> {
   @override
   Widget build(BuildContext context) {
     return Table(
@@ -162,7 +237,7 @@ class _TableByIdState extends State<TableById> {
         TableRow(
           children: [
             const TableCell(child: Center(child: Text(""))),
-            InfoTableCell(info: widget._playerGameSession.player.name),
+            _InfoTableCell(info: widget._playerGameSession.player.name),
           ],
         ),
         _buildScoreRow(
@@ -258,8 +333,8 @@ class _TableByIdState extends State<TableById> {
     final score = getScore(scorecard);
     return TableRow(
       children: [
-        InfoTableCell(info: title),
-        ScoreFieldCell(
+        _InfoTableCell(info: title),
+        _ScoreFieldCell(
           context: context,
           value: score != null ? '$score' : '_',
           scorecardId: scorecard.id as int,
@@ -270,8 +345,8 @@ class _TableByIdState extends State<TableById> {
   }
 }
 
-class ScoreFieldCell extends StatelessWidget {
-  const ScoreFieldCell({
+class _ScoreFieldCell extends StatelessWidget {
+  const _ScoreFieldCell({
     super.key,
     required this.context,
     required this.value,
@@ -292,7 +367,7 @@ class ScoreFieldCell extends StatelessWidget {
         onTap: () {
           showDialog(
             context: context,
-            builder: (BuildContext dialogContext) => InputDialog(
+            builder: (BuildContext dialogContext) => _InputDialog(
               context: dialogContext,
               viewmodel: context.read<YahtzeeViewmodel>(),
               scorecardId: scorecardId,
@@ -305,8 +380,8 @@ class ScoreFieldCell extends StatelessWidget {
   }
 }
 
-class InfoTableCell extends StatelessWidget {
-  const InfoTableCell({super.key, required this.info, this.bold = true});
+class _InfoTableCell extends StatelessWidget {
+  const _InfoTableCell({super.key, required this.info, this.bold = true});
 
   final String info;
   final bool bold;
@@ -326,8 +401,8 @@ class InfoTableCell extends StatelessWidget {
   }
 }
 
-class InputDialog extends StatefulWidget {
-  const InputDialog({
+class _InputDialog extends StatefulWidget {
+  const _InputDialog({
     super.key,
     required this.context,
     required this.viewmodel,
@@ -341,10 +416,10 @@ class InputDialog extends StatefulWidget {
   final String databaseFieldName;
 
   @override
-  State<InputDialog> createState() => _InputDialogState();
+  State<_InputDialog> createState() => _InputDialogState();
 }
 
-class _InputDialogState extends State<InputDialog> {
+class _InputDialogState extends State<_InputDialog> {
   final TextEditingController _textFieldController = TextEditingController();
 
   @override

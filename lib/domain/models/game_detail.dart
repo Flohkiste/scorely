@@ -20,6 +20,14 @@ class GameDetail {
     );
     return index != -1 ? index : null;
   }
+
+  String getPlayerNameFromIndex(int index) {
+    final session = sessions
+        .where((session) => session.gamePlayer.playerOrder == index)
+        .firstOrNull;
+
+    return session!.player.name;
+  }
 }
 
 /// Verbindet den Spieler, seine Session-Daten und seine Scorecard
