@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:scorely/data/repositories/yahtzee_repository.dart';
 import 'package:scorely/domain/models/game_detail.dart';
+import 'package:scorely/domain/models/player.dart';
 import 'package:scorely/utils/result.dart';
 
 class YahtzeeViewmodel extends ChangeNotifier {
@@ -12,6 +13,7 @@ class YahtzeeViewmodel extends ChangeNotifier {
   String? _errorMessage;
   bool _isGameRunning = true;
   String? _winnerName;
+  int? _currentPlayer;
 
   YahtzeeViewmodel({
     required int gameId,
@@ -26,6 +28,7 @@ class YahtzeeViewmodel extends ChangeNotifier {
   int? get gameId => _game!.game.id;
   bool get isGameRunning => _isGameRunning;
   String? get winnerName => _winnerName;
+  int? get currentPlayer => _currentPlayer;
 
   Future<void> loadGame() async {
     _isLoading = true;
@@ -47,17 +50,30 @@ class YahtzeeViewmodel extends ChangeNotifier {
     notifyListeners();
   }
 
-  List<String> getPlayers() {
-    List<String> result = [];
+  List<Player> getPlayers() {
+    List<Player> result = [];
 
     if (game == null) {
       return result;
     }
 
     for (var session in game!.sessions) {
-      result.add(session.player.name);
+      result.add(session.player);
     }
     return result;
+  }
+
+  Future<void> loadCurrentPlayerId() async {
+    final result = await _yahtzeeRepository.getCurrentPlayerId(_gameId);
+
+    switch (result) {
+      case Ok(value: final id):
+        _errorMessage = null;
+        _currentPlayer = id;
+      case Error(error: final e):
+        _errorMessage = e.toString();
+        throw e;
+    }
   }
 
   Future<void> updateScoreField(
@@ -85,6 +101,9 @@ class YahtzeeViewmodel extends ChangeNotifier {
       _isGameRunning = false;
       _determineWinner();
     }
+
+    await _yahtzeeRepository.changeActivePlayer(_gameId);
+    loadCurrentPlayerId();
 
     notifyListeners();
   }

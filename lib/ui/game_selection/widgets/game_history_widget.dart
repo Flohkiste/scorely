@@ -155,9 +155,6 @@ class _Header extends StatelessWidget {
   }
 }
 
-// Beispielhaftes Model (falls noch nicht vorhanden, um isFinished zu berücksichtigen)
-// class GameSummary { ... final bool isFinished; ... }
-
 class GameSummaryCard extends StatelessWidget {
   final GameSummary summary;
   final VoidCallback? onTap;
@@ -208,7 +205,7 @@ class GameSummaryCard extends StatelessWidget {
       child: Card(
         elevation: 0,
         color: theme.colorScheme.surfaceContainerLow,
-        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
           side: BorderSide(color: theme.colorScheme.outlineVariant, width: 1),
@@ -217,7 +214,7 @@ class GameSummaryCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           onTap: onTap,
           child: Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(12.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -229,10 +226,10 @@ class GameSummaryCard extends StatelessWidget {
                       children: [
                         Icon(
                           Icons.schedule_rounded,
-                          size: 15,
+                          size: 14,
                           color: theme.colorScheme.outline,
                         ),
-                        const SizedBox(width: 6),
+                        const SizedBox(width: 4),
                         Text(
                           _formatDateTime(summary.createdAt),
                           style: theme.textTheme.labelMedium?.copyWith(
@@ -261,76 +258,86 @@ class GameSummaryCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 8),
 
-                // Rangliste (Top 3)
-                if (summary.topThreePlayers.isNotEmpty)
-                  Column(
-                    children: List.generate(summary.topThreePlayers.length, (
-                      index,
-                    ) {
-                      final player = summary.topThreePlayers[index];
-                      final isWinner = index == 0;
+                // Hauptbereich: Spielerliste links, Button rechts
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    // Linke Seite: Spieler & Punkte
+                    Expanded(
+                      child: Column(
+                        children: List.generate(
+                          summary.topThreePlayers.length,
+                          (index) {
+                            final player = summary.topThreePlayers[index];
+                            final isWinner = index == 0;
 
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 4.0),
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.emoji_events_rounded,
-                              size: isWinner ? 20 : 16,
-                              color: _rankColors[index],
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                player.name,
-                                style: TextStyle(
-                                  fontWeight: isWinner
-                                      ? FontWeight.bold
-                                      : FontWeight.normal,
-                                  fontSize: isWinner ? 15 : 14,
-                                  color: isWinner
-                                      ? theme.colorScheme.onSurface
-                                      : theme.colorScheme.onSurfaceVariant,
-                                ),
-                                overflow: TextOverflow.ellipsis,
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 2.0,
                               ),
-                            ),
-                            Text(
-                              '${player.score} Pkt',
-                              style: TextStyle(
-                                fontWeight: isWinner
-                                    ? FontWeight.bold
-                                    : FontWeight.w500,
-                                fontSize: isWinner ? 15 : 14,
-                                color: isWinner
-                                    ? theme.colorScheme.primary
-                                    : theme.colorScheme.onSurfaceVariant,
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.emoji_events_rounded,
+                                    size: isWinner ? 18 : 14,
+                                    color: _rankColors[index],
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Expanded(
+                                    child: Text(
+                                      player.name,
+                                      style: TextStyle(
+                                        fontWeight: isWinner
+                                            ? FontWeight.bold
+                                            : FontWeight.normal,
+                                        fontSize: isWinner ? 14 : 13,
+                                        color: isWinner
+                                            ? theme.colorScheme.onSurface
+                                            : theme
+                                                  .colorScheme
+                                                  .onSurfaceVariant,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    '${player.score} Pkt',
+                                    style: TextStyle(
+                                      fontWeight: isWinner
+                                          ? FontWeight.bold
+                                          : FontWeight.w500,
+                                      fontSize: isWinner ? 14 : 13,
+                                      color: isWinner
+                                          ? theme.colorScheme.primary
+                                          : theme.colorScheme.onSurfaceVariant,
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ),
-                          ],
+                            );
+                          },
                         ),
-                      );
-                    }),
-                  ),
+                      ),
+                    ),
 
-                const SizedBox(height: 16),
+                    const SizedBox(width: 12),
 
-                // Action Button (Resume vs Play Again)
-                SizedBox(
-                  width: double.infinity,
-                  child: isFinished
-                      ? FilledButton.tonalIcon(
-                          onPressed: onPlayAgain,
-                          icon: const Icon(Icons.replay_rounded, size: 18),
-                          label: const Text('Erneut spielen'),
-                        )
-                      : FilledButton.icon(
-                          onPressed: onResume,
-                          icon: const Icon(Icons.play_arrow_rounded, size: 18),
-                          label: const Text('Fortsetzen'),
-                        ),
+                    // Rechte Seite: Kompakter IconButton
+                    isFinished
+                        ? IconButton.filledTonal(
+                            onPressed: onPlayAgain,
+                            icon: const Icon(Icons.replay_rounded),
+                            tooltip: 'Erneut spielen',
+                          )
+                        : IconButton.filled(
+                            onPressed: onResume,
+                            icon: const Icon(Icons.play_arrow_rounded),
+                            tooltip: 'Fortsetzen',
+                          ),
+                  ],
                 ),
               ],
             ),

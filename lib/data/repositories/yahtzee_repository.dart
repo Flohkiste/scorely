@@ -18,12 +18,13 @@ abstract class IYahtzeeRepository {
     String fieldName,
     int score,
   );
-  Future<Result<void>> changeActivePlayer(int gameId, int activePlayerId);
+  Future<Result<void>> changeActivePlayer(int gameId);
   Future<Result<void>> endGame(int gameId);
   Future<Result<List<GameSummary>>> loadGameHistory();
   Future<Result<bool>> isGameFinished(int gameId);
   Future<Result<int>> replayGame(int gameId);
   Future<Result<void>> deleteGame(int gameId);
+  Future<Result<int>> getCurrentPlayerId(int gameId);
 }
 
 class YahtzeeRepository implements IYahtzeeRepository {
@@ -34,12 +35,9 @@ class YahtzeeRepository implements IYahtzeeRepository {
 
   // Changes active player
   @override
-  Future<Result<void>> changeActivePlayer(
-    int gameId,
-    int activePlayerId,
-  ) async {
+  Future<Result<void>> changeActivePlayer(int gameId) async {
     try {
-      await _yahtzeeDao.changeActivePlayer(gameId, activePlayerId);
+      await _yahtzeeDao.advanceToNextPlayer(gameId);
       return Result.ok(null);
     } on Exception catch (e) {
       return Result.error(e);
@@ -221,6 +219,19 @@ class YahtzeeRepository implements IYahtzeeRepository {
     try {
       await _yahtzeeDao.deleteGame(gameId);
       return Result.ok(null);
+    } on Exception catch (e) {
+      return Result.error(e);
+    }
+  }
+
+  @override
+  Future<Result<int>> getCurrentPlayerId(int gameId) async {
+    try {
+      final currentPlayerId = await _yahtzeeDao.fetchCurrentPlayerId(gameId);
+      if (currentPlayerId != null) return Result.ok(currentPlayerId);
+      return Result.error(
+        Exception('No current player found for this game id: $gameId'),
+      );
     } on Exception catch (e) {
       return Result.error(e);
     }

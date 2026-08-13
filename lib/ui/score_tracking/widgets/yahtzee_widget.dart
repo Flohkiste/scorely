@@ -27,10 +27,13 @@ class _YahtzeeWidgetState extends State<YahtzeeWidget> {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<YahtzeeViewmodel>(
-      create: (context) => YahtzeeViewmodel(
-        gameId: widget.gameId,
-        yahtzeeRepository: context.read<YahtzeeRepository>(),
-      )..loadGame(),
+      create: (context) =>
+          YahtzeeViewmodel(
+              gameId: widget.gameId,
+              yahtzeeRepository: context.read<YahtzeeRepository>(),
+            )
+            ..loadGame()
+            ..loadCurrentPlayerId(),
       child: Consumer<YahtzeeViewmodel>(
         builder: (context, viewmodel, child) {
           if (viewmodel.isLoading) {
@@ -69,7 +72,10 @@ class _YahtzeeWidgetState extends State<YahtzeeWidget> {
                     const TableCell(child: Center(child: Text(""))),
 
                     ...viewmodel.getPlayers().map((player) {
-                      return _infoTableCell(player);
+                      return _infoTableCell(
+                        player.name,
+                        bold: player.id == viewmodel.currentPlayer,
+                      );
                     }),
                   ],
                 ),
@@ -172,10 +178,15 @@ class _YahtzeeWidgetState extends State<YahtzeeWidget> {
     );
   }
 
-  Widget _infoTableCell(String info) {
+  Widget _infoTableCell(String info, {bool bold = true}) {
     return TableCell(
       child: Center(
-        child: Text(info, style: const TextStyle(fontWeight: FontWeight.bold)),
+        child: Text(
+          info,
+          style: TextStyle(
+            fontWeight: bold ? FontWeight.bold : FontWeight.normal,
+          ),
+        ),
       ),
     );
   }

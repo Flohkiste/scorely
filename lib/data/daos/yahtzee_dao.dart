@@ -8,6 +8,7 @@ class YahtzeeDao {
 
   YahtzeeDao({required DatabaseService dbService}) : _dbService = dbService;
 
+  // Deletes game
   Future<int> deleteGame(int gameId) async {
     final db = await _dbService.database;
 
@@ -254,17 +255,81 @@ class YahtzeeDao {
     });
   }
 
-  Future<void> changeActivePlayer(int gameId, int activePlayerId) async {
+  Future<int?> fetchCurrentPlayerId(int gameId) async {
     final db = await _dbService.database;
 
-    await db.update(
+    final currentPlayerIdQuery = await db.query(
       DatabaseContract.tableGames,
-      {DatabaseContract.columnGameCurrentPlayerId: activePlayerId},
       where: '${DatabaseContract.columnGameId} = ?',
       whereArgs: [gameId],
+      limit: 1,
     );
+
+    if (currentPlayerIdQuery.isEmpty) return null;
+
+    final currentPlayerId =
+        currentPlayerIdQuery.first[DatabaseContract.columnGameCurrentPlayerId]
+            as int;
+
+    return currentPlayerId;
   }
 
+  //
+  Future<void> advanceToNextPlayer(int gameId) async {
+    final db = await _dbService.database;
+
+    final currentPlayerId = await fetchCurrentPlayerId(gameId);
+
+    await db.transaction((txn) async {
+      final current = await txn.query(
+        DatabaseContract.tableGamePlayers,
+        where:
+            '${DatabaseContract.columnGpGameId} = ? AND ${DatabaseContract.columnGpPlayerId} = ?',
+        whereArgs: [gameId, currentPlayerId],
+        limit: 1,
+      );
+
+      if (current.isEmpty) return;
+
+      final currentOrder =
+          current.first[DatabaseContract.columnGpPlayerOrder] as int;
+
+      var nextPlayerQuery = await txn.query(
+        DatabaseContract.tableGamePlayers,
+        columns: [DatabaseContract.columnGpPlayerId],
+        where:
+            '${DatabaseContract.columnGpGameId} = ? AND ${DatabaseContract.columnGpPlayerOrder} > ?',
+        whereArgs: [gameId, currentOrder],
+        orderBy: '${DatabaseContract.columnGpPlayerOrder} ASC',
+        limit: 1,
+      );
+
+      if (nextPlayerQuery.isEmpty) {
+        nextPlayerQuery = await txn.query(
+          DatabaseContract.tableGamePlayers,
+          columns: [DatabaseContract.columnGpPlayerId],
+          where: '${DatabaseContract.columnGpGameId} = ?',
+          whereArgs: [gameId],
+          orderBy: '${DatabaseContract.columnGpPlayerOrder} ASC',
+          limit: 1,
+        );
+      }
+
+      if (nextPlayerQuery.isEmpty) return;
+
+      final nextPlayerId =
+          nextPlayerQuery.first[DatabaseContract.columnGpPlayerId] as int;
+
+      await txn.update(
+        DatabaseContract.tableGames,
+        {DatabaseContract.columnGameCurrentPlayerId: nextPlayerId},
+        where: '${DatabaseContract.columnGameId} = ?',
+        whereArgs: [gameId],
+      );
+    });
+  }
+
+  // Updates game status
   Future<void> updateGameStatus(int gameId, GameStatus status) async {
     final db = await _dbService.database;
 
@@ -276,6 +341,7 @@ class YahtzeeDao {
     );
   }
 
+  // returns the number of score fields that are not null
   Future<int> fetchNumberOfNotNullFields(int gameId) async {
     final db = await _dbService.database;
 
@@ -306,6 +372,7 @@ class YahtzeeDao {
     return count ?? 0;
   }
 
+  // return true if every score field is filled with a score
   Future<bool> isGameFinished(int gameId) async {
     final db = await _dbService.database;
 
