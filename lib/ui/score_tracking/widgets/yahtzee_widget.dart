@@ -17,14 +17,7 @@ class YahtzeeWidget extends StatefulWidget {
 }
 
 class _YahtzeeWidgetState extends State<YahtzeeWidget> {
-  final TextEditingController _textFieldController = TextEditingController();
   bool _dialogShown = false;
-
-  @override
-  void dispose() {
-    _textFieldController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -109,16 +102,13 @@ class _YahtzeeWidgetState extends State<YahtzeeWidget> {
 
 class TableById extends StatefulWidget {
   final PlayerGameSession _playerGameSession;
-  final Command<(int scorecardId, String fieldName, int? score), void>
-  _updateScoreFieldCommand;
 
   const TableById({
     super.key,
     required PlayerGameSession playerScorecard,
     required Command<(int scorecardId, String fieldName, int? score), void>
     updateScoreFieldCommand,
-  }) : _playerGameSession = playerScorecard,
-       _updateScoreFieldCommand = updateScoreFieldCommand;
+  }) : _playerGameSession = playerScorecard;
 
   @override
   State<TableById> createState() => _TableByIdState();
@@ -141,120 +131,157 @@ class _TableByIdState extends State<TableById> {
         TableRow(
           children: [
             const TableCell(child: Center(child: Text(""))),
-            _infoTableCell(widget._playerGameSession.player.name),
+            InfoTableCell(info: widget._playerGameSession.player.name),
           ],
         ),
         _buildScoreRow(
-          context,
           'ONES',
           (sc) => sc.ones,
           DatabaseContract.columnScOnes,
-          widget._updateScoreFieldCommand,
           widget._playerGameSession.scorecard,
         ),
         _buildScoreRow(
-          context,
           'TWOS',
           (sc) => sc.twos,
           DatabaseContract.columnScTwos,
-          widget._updateScoreFieldCommand,
           widget._playerGameSession.scorecard,
         ),
         _buildScoreRow(
-          context,
           'THREES',
           (sc) => sc.threes,
           DatabaseContract.columnScThrees,
-          widget._updateScoreFieldCommand,
           widget._playerGameSession.scorecard,
         ),
         _buildScoreRow(
-          context,
           'FOURS',
           (sc) => sc.fours,
           DatabaseContract.columnScFours,
-          widget._updateScoreFieldCommand,
           widget._playerGameSession.scorecard,
         ),
         _buildScoreRow(
-          context,
           'FIVES',
           (sc) => sc.fives,
           DatabaseContract.columnScFives,
-          widget._updateScoreFieldCommand,
           widget._playerGameSession.scorecard,
         ),
         _buildScoreRow(
-          context,
           'SIXES',
           (sc) => sc.sixes,
           DatabaseContract.columnScSixes,
-          widget._updateScoreFieldCommand,
           widget._playerGameSession.scorecard,
         ),
 
         // Upper Bonus etc.
         _buildScoreRow(
-          context,
           'THREE OF A KIND',
           (sc) => sc.threeOfAKind,
           DatabaseContract.columnScThreeOfAKind,
-          widget._updateScoreFieldCommand,
           widget._playerGameSession.scorecard,
         ),
         _buildScoreRow(
-          context,
           'FOUR OF A KIND',
           (sc) => sc.fourOfAKind,
           DatabaseContract.columnScFourOfAKind,
-          widget._updateScoreFieldCommand,
           widget._playerGameSession.scorecard,
         ),
         _buildScoreRow(
-          context,
           'FULL HOUSE',
           (sc) => sc.fullHouse,
           DatabaseContract.columnScFullHouse,
-          widget._updateScoreFieldCommand,
           widget._playerGameSession.scorecard,
         ),
         _buildScoreRow(
-          context,
           'SMALL STRAIGHT',
           (sc) => sc.smallStraight,
           DatabaseContract.columnScSmallStraight,
-          widget._updateScoreFieldCommand,
           widget._playerGameSession.scorecard,
         ),
         _buildScoreRow(
-          context,
           'LARGE STRAIGHT',
           (sc) => sc.largeStraight,
           DatabaseContract.columnScLargeStraight,
-          widget._updateScoreFieldCommand,
           widget._playerGameSession.scorecard,
         ),
         _buildScoreRow(
-          context,
           'YAHTZEE',
           (sc) => sc.yahtzee,
           DatabaseContract.columnScYahtzee,
-          widget._updateScoreFieldCommand,
           widget._playerGameSession.scorecard,
         ),
         _buildScoreRow(
-          context,
           'CHANCE',
           (sc) => sc.chance,
           DatabaseContract.columnScChance,
-          widget._updateScoreFieldCommand,
           widget._playerGameSession.scorecard,
         ),
       ],
     );
   }
 
-  Widget _infoTableCell(String info, {bool bold = true}) {
+  TableRow _buildScoreRow(
+    String title,
+    int? Function(Scorecard) getScore,
+    String fieldName,
+    Scorecard scorecard,
+  ) {
+    final score = getScore(scorecard);
+    return TableRow(
+      children: [
+        InfoTableCell(info: title),
+        ScoreFieldCell(
+          context: context,
+          value: score != null ? '$score' : '_',
+          scorecardId: scorecard.id as int,
+          fieldName: fieldName,
+        ),
+      ],
+    );
+  }
+}
+
+class ScoreFieldCell extends StatelessWidget {
+  const ScoreFieldCell({
+    super.key,
+    required this.context,
+    required this.value,
+    required this.scorecardId,
+    required this.fieldName,
+  });
+
+  final BuildContext context;
+  final String value;
+  final int scorecardId;
+  final String fieldName;
+
+  @override
+  Widget build(BuildContext context) {
+    return TableCell(
+      child: GestureDetector(
+        child: Center(child: Text(value)),
+        onTap: () {
+          showDialog(
+            context: context,
+            builder: (BuildContext dialogContext) => InputDialog(
+              context: dialogContext,
+              viewmodel: context.read<YahtzeeViewmodel>(),
+              scorecardId: scorecardId,
+              databaseFieldName: fieldName,
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class InfoTableCell extends StatelessWidget {
+  const InfoTableCell({super.key, required this.info, this.bold = true});
+
+  final String info;
+  final bool bold;
+
+  @override
+  Widget build(BuildContext context) {
     return TableCell(
       child: Center(
         child: Text(
@@ -266,64 +293,32 @@ class _TableByIdState extends State<TableById> {
       ),
     );
   }
+}
 
-  Widget _scoreFieldCell(
-    BuildContext context,
-    String value,
-    Command<(int scorecardId, String databaseFieldName, int? value), void>
-    updateScoreFieldCommand,
-    int scorecardId,
-    String fieldName,
-  ) {
-    return TableCell(
-      child: GestureDetector(
-        child: Center(child: Text(value)),
-        onTap: () {
-          showDialog(
-            context: context,
-            builder: (BuildContext dialogContext) => _inputDialog(
-              dialogContext,
-              updateScoreFieldCommand,
-              scorecardId,
-              fieldName,
-            ),
-          );
-        },
-      ),
-    );
-  }
+class InputDialog extends StatefulWidget {
+  const InputDialog({
+    super.key,
+    required this.context,
+    required this.viewmodel,
+    required this.scorecardId,
+    required this.databaseFieldName,
+  });
 
-  TableRow _buildScoreRow(
-    BuildContext context,
-    String title,
-    int? Function(Scorecard) getScore,
-    String fieldName,
-    Command<(int scorecardId, String databaseFieldName, int? value), void>
-    updateScoreFieldCommand,
-    Scorecard scorecard,
-  ) {
-    final score = getScore(scorecard);
-    return TableRow(
-      children: [
-        _infoTableCell(title),
-        _scoreFieldCell(
-          context,
-          score != null ? '$score' : '_',
-          updateScoreFieldCommand,
-          scorecard.id as int,
-          fieldName,
-        ),
-      ],
-    );
-  }
+  final BuildContext context;
+  final YahtzeeViewmodel viewmodel;
+  final int scorecardId;
+  final String databaseFieldName;
 
-  AlertDialog _inputDialog(
-    BuildContext context,
-    Command<(int scorecardId, String databaseFieldName, int? value), void>
-    updateScoreFieldCommand,
-    int scorecardId,
-    String databaseFieldName,
-  ) {
+  @override
+  State<InputDialog> createState() => _InputDialogState();
+}
+
+class _InputDialogState extends State<InputDialog> {
+  final TextEditingController _textFieldController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    final updateScoreFieldCommand = widget.viewmodel.updateScoreFieldCommand;
     return AlertDialog(
       title: const Text('input score'),
       content: TextField(
@@ -343,8 +338,8 @@ class _TableByIdState extends State<TableById> {
             final value = int.tryParse(_textFieldController.text);
             if (value == null) return;
             updateScoreFieldCommand.run((
-              scorecardId,
-              databaseFieldName,
+              widget.scorecardId,
+              widget.databaseFieldName,
               value,
             ));
             if (mounted) {
