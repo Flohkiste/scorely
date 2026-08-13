@@ -1,3 +1,4 @@
+import 'package:command_it/command_it.dart';
 import 'package:flutter/foundation.dart';
 import 'package:scorely/data/repositories/yahtzee_repository.dart';
 import 'package:scorely/domain/models/game_detail.dart';
@@ -13,13 +14,21 @@ class YahtzeeViewmodel extends ChangeNotifier {
   String? _errorMessage;
   bool _isGameRunning = true;
   String? _winnerName;
-  int? _currentPlayer;
+  int? _currentPlayerId;
 
   YahtzeeViewmodel({
     required int gameId,
     required IYahtzeeRepository yahtzeeRepository,
   }) : _gameId = gameId,
-       _yahtzeeRepository = yahtzeeRepository;
+       _yahtzeeRepository = yahtzeeRepository {
+    updateScoreFieldCommand =
+        Command.createAsyncNoResult<
+          (int scorecardId, String fieldName, int? score)
+        >((param) => _updateScoreField(param.$1, param.$2, param.$3));
+  }
+
+  late final Command<(int scorecardId, String fieldName, int? score), void>
+  updateScoreFieldCommand;
 
   // Getters für den UI-Zustand
   GameDetail? get game => _game;
@@ -28,7 +37,7 @@ class YahtzeeViewmodel extends ChangeNotifier {
   int? get gameId => _game!.game.id;
   bool get isGameRunning => _isGameRunning;
   String? get winnerName => _winnerName;
-  int? get currentPlayer => _currentPlayer;
+  int? get currentPlayerId => _currentPlayerId;
 
   Future<void> loadGame() async {
     _isLoading = true;
@@ -69,14 +78,14 @@ class YahtzeeViewmodel extends ChangeNotifier {
     switch (result) {
       case Ok(value: final id):
         _errorMessage = null;
-        _currentPlayer = id;
+        _currentPlayerId = id;
       case Error(error: final e):
         _errorMessage = e.toString();
         throw e;
     }
   }
 
-  Future<void> updateScoreField(
+  Future<void> _updateScoreField(
     int scorecardId,
     String fieldName,
     int? score,

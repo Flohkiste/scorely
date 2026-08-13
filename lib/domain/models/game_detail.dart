@@ -9,6 +9,10 @@ class GameDetail {
   final List<PlayerGameSession> sessions;
 
   GameDetail({required this.game, required this.sessions});
+
+  PlayerGameSession? getPlayerGameSession(int playerId) {
+    return sessions.where((s) => s.player.id == playerId).firstOrNull;
+  }
 }
 
 /// Verbindet den Spieler, seine Session-Daten und seine Scorecard
