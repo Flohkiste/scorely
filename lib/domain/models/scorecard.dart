@@ -54,17 +54,18 @@ class Scorecard {
   /// Prüft, ob der Bonus (>= 63 Punkte im oberen Teil) erreicht wurde
   int get calculatedUpperBonus => upperScore >= 63 ? 35 : 0;
 
-  /// Berechnet die Gesamtsumme der Scorecard
-  int get calculatedTotalScore {
-    final lowerScore =
-        (threeOfAKind ?? 0) +
+  int get lowerScore {
+    return (threeOfAKind ?? 0) +
         (fourOfAKind ?? 0) +
         (fullHouse ?? 0) +
         (smallStraight ?? 0) +
         (largeStraight ?? 0) +
         (yahtzee ?? 0) +
         (chance ?? 0);
+  }
 
+  /// Berechnet die Gesamtsumme der Scorecard
+  int get calculatedTotalScore {
     return upperScore + calculatedUpperBonus + lowerScore;
   }
 

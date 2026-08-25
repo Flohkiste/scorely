@@ -252,142 +252,185 @@ class _TableById extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Table(
-      border: TableBorder.all(),
+    final sc = _playerGameSession.scorecard;
+    return ListView(
+      padding: const EdgeInsets.all(8),
       children: [
-        TableRow(
-          children: [
-            const TableCell(child: Center(child: Text(""))),
-            _InfoTableCell(info: _playerGameSession.player.name),
-          ],
+        _ScoreFieldRow(
+          value: sc.ones,
+          scorecardId: sc.id!,
+          fieldName: "ONES",
+          index: 1,
+          databaseFieldName: DatabaseContract.columnScOnes,
         ),
-        _buildScoreRow('ONES', (sc) => sc.ones, DatabaseContract.columnScOnes),
-        _buildScoreRow('TWOS', (sc) => sc.twos, DatabaseContract.columnScTwos),
-        _buildScoreRow(
-          'THREES',
-          (sc) => sc.threes,
-          DatabaseContract.columnScThrees,
+        _ScoreFieldRow(
+          value: sc.twos,
+          scorecardId: sc.id!,
+          fieldName: "TWOS",
+          index: 2,
+          databaseFieldName: DatabaseContract.columnScTwos,
         ),
-        _buildScoreRow(
-          'FOURS',
-          (sc) => sc.fours,
-          DatabaseContract.columnScFours,
+        _ScoreFieldRow(
+          value: sc.threes,
+          scorecardId: sc.id!,
+          fieldName: "THREES",
+          index: 3,
+          databaseFieldName: DatabaseContract.columnScThrees,
         ),
-        _buildScoreRow(
-          'FIVES',
-          (sc) => sc.fives,
-          DatabaseContract.columnScFives,
+        _ScoreFieldRow(
+          value: sc.fours,
+          scorecardId: sc.id!,
+          fieldName: "FOURS",
+          index: 4,
+          databaseFieldName: DatabaseContract.columnScFours,
         ),
-        _buildScoreRow(
-          'SIXES',
-          (sc) => sc.sixes,
-          DatabaseContract.columnScSixes,
+        _ScoreFieldRow(
+          value: sc.fives,
+          scorecardId: sc.id!,
+          fieldName: "FIVES",
+          index: 5,
+          databaseFieldName: DatabaseContract.columnScFives,
         ),
-        _buildScoreRow(
-          'THREE OF A KIND',
-          (sc) => sc.threeOfAKind,
-          DatabaseContract.columnScThreeOfAKind,
+        _ScoreFieldRow(
+          value: sc.sixes,
+          scorecardId: sc.id!,
+          fieldName: "SIXES",
+          index: 6,
+          databaseFieldName: DatabaseContract.columnScSixes,
         ),
-        _buildScoreRow(
-          'FOUR OF A KIND',
-          (sc) => sc.fourOfAKind,
-          DatabaseContract.columnScFourOfAKind,
-        ),
-        _buildScoreRow(
-          'FULL HOUSE',
-          (sc) => sc.fullHouse,
-          DatabaseContract.columnScFullHouse,
-        ),
-        _buildScoreRow(
-          'SMALL STRAIGHT',
-          (sc) => sc.smallStraight,
-          DatabaseContract.columnScSmallStraight,
-        ),
-        _buildScoreRow(
-          'LARGE STRAIGHT',
-          (sc) => sc.largeStraight,
-          DatabaseContract.columnScLargeStraight,
-        ),
-        _buildScoreRow(
-          'YAHTZEE',
-          (sc) => sc.yahtzee,
-          DatabaseContract.columnScYahtzee,
-        ),
-        _buildScoreRow(
-          'CHANCE',
-          (sc) => sc.chance,
-          DatabaseContract.columnScChance,
-        ),
-      ],
-    );
-  }
 
-  TableRow _buildScoreRow(
-    String title,
-    int? Function(Scorecard) getScore,
-    String fieldName,
-  ) {
-    final scorecard = _playerGameSession.scorecard;
-    final score = getScore(scorecard);
-    return TableRow(
-      children: [
-        _InfoTableCell(info: title),
-        _ScoreFieldCell(
-          value: score != null ? '$score' : '_',
-          scorecardId: scorecard.id as int,
-          fieldName: fieldName,
+        // Top Total & Bonus (-63)
+        _ScoreFieldRow(
+          value: sc.upperScore,
+          scorecardId: sc.id!,
+          fieldName: "TOP TOTAL",
+          index: 7,
+          databaseFieldName: null,
+        ),
+        _ScoreFieldRow(
+          value: sc.upperBonus,
+          scorecardId: sc.id!,
+          fieldName: "BONUS",
+          index: 8,
+          databaseFieldName: null,
+        ),
+
+        _ScoreFieldRow(
+          value: sc.threeOfAKind,
+          scorecardId: sc.id!,
+          fieldName: "THREE OF A KIND",
+          index: 9,
+          databaseFieldName: DatabaseContract.columnScThreeOfAKind,
+        ),
+        _ScoreFieldRow(
+          value: sc.fourOfAKind,
+          scorecardId: sc.id!,
+          fieldName: "FOUR OF A KIND",
+          index: 10,
+          databaseFieldName: DatabaseContract.columnScFourOfAKind,
+        ),
+        _ScoreFieldRow(
+          value: sc.smallStraight,
+          scorecardId: sc.id!,
+          fieldName: "SMALL STRAIGHT",
+          index: 11,
+          databaseFieldName: DatabaseContract.columnScSmallStraight,
+        ),
+        _ScoreFieldRow(
+          value: sc.largeStraight,
+          scorecardId: sc.id!,
+          fieldName: "LARGE STRAIGHT",
+          index: 12,
+          databaseFieldName: DatabaseContract.columnScLargeStraight,
+        ),
+        _ScoreFieldRow(
+          value: sc.fullHouse,
+          scorecardId: sc.id!,
+          fieldName: "FULL HOUSE",
+          index: 13,
+          databaseFieldName: DatabaseContract.columnScFullHouse,
+        ),
+        _ScoreFieldRow(
+          value: sc.chance,
+          scorecardId: sc.id!,
+          fieldName: "CHANCE",
+          index: 14,
+          databaseFieldName: DatabaseContract.columnScChance,
+        ),
+        _ScoreFieldRow(
+          value: sc.yahtzee,
+          scorecardId: sc.id!,
+          fieldName: "YAHTZEE",
+          index: 15,
+          databaseFieldName: DatabaseContract.columnScYahtzee,
+        ),
+
+        // Bottom Total & Total Sum
+        _ScoreFieldRow(
+          value: sc.lowerScore,
+          scorecardId: sc.id!,
+          fieldName: "BOTTOM TOTAL",
+          index: 16,
+          databaseFieldName: null,
+        ),
+        _ScoreFieldRow(
+          value: sc.calculatedTotalScore,
+          scorecardId: sc.id!,
+          fieldName: "TOTAL",
+          index: 17,
+          databaseFieldName: null,
         ),
       ],
     );
   }
 }
 
-class _ScoreFieldCell extends StatelessWidget {
-  const _ScoreFieldCell({
+class _ScoreFieldRow extends StatelessWidget {
+  const _ScoreFieldRow({
     required this.value,
     required this.scorecardId,
     required this.fieldName,
+    required this.index,
+    required this.databaseFieldName,
   });
 
-  final String value;
+  final int? value;
   final int scorecardId;
   final String fieldName;
+  final int index;
+  final String? databaseFieldName;
 
   @override
   Widget build(BuildContext context) {
-    return TableCell(
-      child: GestureDetector(
-        child: Center(child: Text(value)),
-        onTap: () {
+    return GestureDetector(
+      onTap: () {
+        if (databaseFieldName != null) {
           showDialog(
             context: context,
             builder: (BuildContext dialogContext) => _InputDialog(
               viewmodel: context.read<YahtzeeViewmodel>(),
               scorecardId: scorecardId,
-              databaseFieldName: fieldName,
+              databaseFieldName: databaseFieldName!,
             ),
           );
-        },
-      ),
-    );
-  }
-}
-
-class _InfoTableCell extends StatelessWidget {
-  const _InfoTableCell({required this.info, this.bold = true});
-
-  final String info;
-  final bool bold;
-
-  @override
-  Widget build(BuildContext context) {
-    return TableCell(
-      child: Center(
-        child: Text(
-          info,
-          style: TextStyle(
-            fontWeight: bold ? FontWeight.bold : FontWeight.normal,
-          ),
+        }
+      },
+      child: Container(
+        color: index.isEven
+            ? Color.fromARGB(255, 255, 255, 255)
+            : Color.fromARGB(255, 183, 183, 183),
+        child: Row(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(fieldName),
+            Row(
+              children: [
+                Text(value == null ? "" : value.toString()),
+                if (databaseFieldName != null) Icon(Icons.edit),
+              ],
+            ),
+          ],
         ),
       ),
     );
